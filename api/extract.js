@@ -42,8 +42,10 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [{ role: 'user', parts }],
         generationConfig: {
-          maxOutputTokens: (req.body && req.body.max_tokens) ? Math.max(req.body.max_tokens, 2000) : 2000,
+          maxOutputTokens: 8192,
           temperature: 0,
+          responseMimeType: 'application/json',
+          thinkingConfig: { thinkingBudget: 0 },
         },
       }),
     });
