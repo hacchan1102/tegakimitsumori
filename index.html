@@ -128,6 +128,20 @@ td.amt{text-align:right;font-family:"Roboto Mono",monospace;padding-right:10px;w
 .addrow{appearance:none;border:0;background:none;color:var(--navy);font-weight:700;font-size:12px;cursor:pointer;padding:9px 16px}
 .addrow:hover{text-decoration:underline}
 
+/* 利益上乗せ */
+.markup-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--line);background:#fbfcfe}
+.mk-label{font-size:12px;font-weight:700;color:var(--muted)}
+.mkbtn{appearance:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:background .12s,border-color .12s}
+.mkbtn:hover{border-color:var(--navy)}
+.mkbtn.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.mk-custom{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;color:var(--muted)}
+.mk-custom input{width:52px;font-family:"Roboto Mono",monospace;font-size:13px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:5px 7px}
+.mk-custom input:focus{outline:2px solid #bcd0f5;border-color:var(--navy)}
+.mk-note{flex-basis:100%;font-size:11px;color:var(--muted)}
+.totals .row.mk .v{color:var(--ok)}
+.totals .grand.mk .v{color:var(--ok)}
+.recon.mkinfo{color:var(--muted)}
+
 .totals{padding:12px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;align-items:flex-end}
 .totals .row{display:flex;gap:16px;font-size:13px;color:var(--muted)}
 .totals .row .v{font-family:"Roboto Mono",monospace;color:var(--ink);min-width:96px;text-align:right}
@@ -365,6 +379,7 @@ function normalize(d){
   d.addressee=d.addressee||''; d.date=d.date||''; d.quote_no=d.quote_no||'';
   d.subject=d.subject||''; d.vendor=Array.isArray(d.vendor)?d.vendor:[];
   d.stated_total=num(d.stated_total);
+  d.markup=num(d.markup)||0;
   d.subtotal_hint=num(d.subtotal_hint); d.tax_hint=num(d.tax_hint);
   d.items=(d.items||[]).map(it=>(it.isHeader?{
     name:it.name||'', unit:'', qty:null, price:null, amount:null,
@@ -383,6 +398,21 @@ function lineAmt(it){
 }
 function calc(d){
   const sub=d.items.reduce((s,it)=>s+lineAmt(it),0);
+  const tax=Math.round(sub*0.1);
+  return {sub,tax,total:sub+tax};
+}
+// 上乗せ後の単価（四捨五入）
+function markedPrice(it,p){ return it.price!=null?Math.round(it.price*(1+p/100)):null; }
+// 上乗せ後の行金額（単価がある行は 数量×上乗せ後単価、一式等は金額を直接上乗せして四捨五入）
+function markedLineAmt(it,p){
+  if(it.isHeader) return 0;
+  if(!p) return lineAmt(it);
+  if(it.qty!=null&&it.price!=null) return it.qty*markedPrice(it,p);
+  return it.amount!=null?Math.round(it.amount*(1+p/100)):0;
+}
+function calcMarked(d){
+  const p=d.markup||0;
+  const sub=d.items.reduce((s,it)=>s+markedLineAmt(it,p),0);
   const tax=Math.round(sub*0.1);
   return {sub,tax,total:sub+tax};
 }
@@ -423,12 +453,39 @@ function paintCard(c,est){
         <tbody>${(()=>{let no=0;return d.items.map((it,i)=>it.isHeader?headerRow(it,i):itemRow(est.id,it,i,++no)).join('')})()}</tbody>
       </table>
     </div>
+    <div class="markup-row">
+      <span class="mk-label">利益上乗せ</span>
+      <button class="mkbtn ${d.markup===10?'on':''}" data-mk="10">10%</button>
+      <button class="mkbtn ${d.markup===20?'on':''}" data-mk="20">20%</button>
+      <button class="mkbtn ${d.markup===30?'on':''}" data-mk="30">30%</button>
+      <span class="mk-custom"><input data-mkinput inputmode="numeric" value="${d.markup||''}" placeholder="0">%</span>
+      <span class="mk-note">Excelには上乗せ後の金額が入り、元の数字は右隣に確認用で表示されます（端数四捨五入）</span>
+    </div>
     <button class="addrow" data-add>＋ 行を追加</button>
     <div class="totals" id="tot${est.id}">${totalsHtml(d,t,recon)}</div>
   `;
   // wiring
   c.querySelector('.x-del').onclick=()=>{estimates=estimates.filter(e=>e.id!==est.id);c.remove();refreshBar()};
   c.querySelector('[data-add]').onclick=()=>{d.items.push({name:'',unit:'',qty:null,price:null,amount:null,name_uncertain:false,number_uncertain:false,isHeader:false});paintCard(c,est)};
+  const refreshTotals=()=>{
+    const t2=calc(d), r2=reconcile(d,t2);
+    $('#tot'+est.id).innerHTML=totalsHtml(d,t2,r2);
+    const b=c.querySelector('.badge');b.className='badge '+r2.cls;b.textContent=r2.label;
+  };
+  c.querySelectorAll('.mkbtn').forEach(btn=>{
+    btn.onclick=()=>{
+      const v=+btn.dataset.mk;
+      d.markup=(d.markup===v)?0:v; // 同じボタン再押下で解除
+      c.querySelectorAll('.mkbtn').forEach(b2=>b2.classList.toggle('on',+b2.dataset.mk===d.markup));
+      c.querySelector('[data-mkinput]').value=d.markup||'';
+      refreshTotals();
+    };
+  });
+  c.querySelector('[data-mkinput]').oninput=e=>{
+    d.markup=Math.max(0,num(e.target.value)||0);
+    c.querySelectorAll('.mkbtn').forEach(b2=>b2.classList.toggle('on',+b2.dataset.mk===d.markup));
+    refreshTotals();
+  };
   c.querySelectorAll('input[data-meta]').forEach(inp=>{
     inp.oninput=()=>{d[inp.dataset.meta]=inp.value}
   });
@@ -439,9 +496,7 @@ function paintCard(c,est){
       if(f==='name'||f==='unit') it[f]=inp.value;
       else it[f]=num(inp.value);
       updateRowAmt(c,i,it);
-      const t2=calc(d), r2=reconcile(d,t2);
-      $('#tot'+est.id).innerHTML=totalsHtml(d,t2,r2);
-      const b=c.querySelector('.badge');b.className='badge '+r2.cls;b.textContent=r2.label;
+      refreshTotals();
     }
   });
 }
@@ -467,11 +522,17 @@ function num2(n){return Number(n||0).toLocaleString('ja-JP')}
 function updateRowAmt(c,i,it){const el=c.querySelector(`[data-amt="${i}"]`);if(el)el.textContent=num2(lineAmt(it))}
 
 function totalsHtml(d,t,recon){
+  const p=d.markup||0;
+  const m=p?calcMarked(d):null;
   return `
     <div class="row"><span>小計（税抜）</span><span class="v">${num2(t.sub)}</span></div>
     <div class="row"><span>消費税（10%）</span><span class="v">${num2(t.tax)}</span></div>
     <div class="row grand"><span>合計（税込）</span><span class="v">${yen(t.total)}</span></div>
-    ${recon.note?`<div class="recon ${recon.cls}">${recon.note}</div>`:''}`;
+    ${recon.note?`<div class="recon ${recon.cls}">${recon.note}</div>`:''}
+    ${m?`<div class="row mk"><span>上乗せ後 小計（+${p}%）</span><span class="v">${num2(m.sub)}</span></div>
+    <div class="row mk"><span>上乗せ後 消費税</span><span class="v">${num2(m.tax)}</span></div>
+    <div class="row grand mk"><span>上乗せ後 合計（税込）</span><span class="v">${yen(m.total)}</span></div>
+    <div class="recon mkinfo">Excelには上乗せ後の金額で出力されます（元の数字は右隣の確認用列に表示）</div>`:''}`;
 }
 function reconcile(d,t){
   if(d.stated_total==null) return {cls:'warn',label:'合計未取得',note:'原本の税込合計が読み取れませんでした。金額をご確認ください。'};
@@ -512,7 +573,7 @@ function mergeEstimates(ests){
   const merged={
     addressee:first.addressee||'', date:first.date||'', quote_no:'',
     vendor:(first.vendor||[]).slice(), subject:'', items:[],
-    stated_total:null, subtotal_hint:null, tax_hint:null,
+    stated_total:null, subtotal_hint:null, tax_hint:null, markup:0,
     reverified:ests.some(e=>e.data.reverified)
   };
   let sum=0, missing=false;
@@ -565,19 +626,23 @@ async function exportExcel(){
 }
 
 function buildSheet(ws,d,no){
-  const widths=[4,30,8,6,13,14,3];
+  const p=d.markup||0;
+  // 上乗せありの場合はH/I列に元の数値（確認用）を出す
+  const widths=p?[4,30,8,6,13,14,3,13,14]:[4,30,8,6,13,14,3];
   widths.forEach((w,i)=>ws.getColumn(i+1).width=w);
   const set=(ref,val,o={})=>{
     const c=ws.getCell(ref);
     if(val!==undefined&&val!==null)c.value=val;
-    c.font={name:'Yu Gothic',size:o.size||11,bold:!!o.bold,color:{argb:o.color||'FF000000'}};
+    c.font={name:'Yu Gothic',size:o.size||11,bold:!!o.bold,color:{argb:o.color||'FF000000'},italic:!!o.italic};
     c.alignment={horizontal:o.align||'left',vertical:o.valign||'middle',wrapText:!!o.wrap};
     if(o.fill)c.fill={type:'pattern',pattern:'solid',fgColor:{argb:o.fill}};
     if(o.border)c.border=o.border;
     if(o.num)c.numFmt=o.num;
     return c;
   };
-  const t=calc(d);
+  const GRAYTXT='FF8A93A6', GRAYFILL='FFF6F7FA';
+  const t=p?calcMarked(d):calc(d);
+  const orig=calc(d);
 
   ws.mergeCells('A1:G1');
   set('A1','御 見 積 書',{size:24,bold:true,align:'center'});ws.getRow(1).height=40;
@@ -620,6 +685,12 @@ function buildSheet(ws,d,no){
   const hdr=13;
   [['A','No.'],['B','品名・摘要'],['C','数量'],['D','単位'],['E','単価'],['F','金額']]
     .forEach(([col,name])=>set(`${col}${hdr}`,name,{size:10,bold:true,fill:NAVY,color:WHITE,align:'center',border:box}));
+  if(p){
+    ws.mergeCells(`H${hdr-1}:I${hdr-1}`);
+    set(`H${hdr-1}`,`▼ 上乗せ前の原本数値（確認用）`,{size:8.5,color:GRAYTXT,align:'center'});
+    set(`H${hdr}`,'元単価',{size:10,bold:true,fill:GRAYFILL,color:GRAYTXT,align:'center',border:box});
+    set(`I${hdr}`,'元金額',{size:10,bold:true,fill:GRAYFILL,color:GRAYTXT,align:'center',border:box});
+  }
   ws.getRow(hdr).height=22;
 
   const first=hdr+1;
@@ -633,15 +704,20 @@ function buildSheet(ws,d,no){
       return;
     }
     itemNo++;
+    const mp=p?markedPrice(it,p):it.price;
     set(`A${r}`,itemNo,{size:10,align:'center',border:box});
     set(`B${r}`,it.name||'',{size:10,border:box,wrap:true});
     set(`C${r}`,it.qty??'',{size:10,align:'center',border:box,num:'#,##0.##'});
     set(`D${r}`,it.unit||'',{size:10,align:'center',border:box});
-    set(`E${r}`,it.price??'',{size:10,align:'right',border:box,num:'#,##0'});
-    if(it.qty!=null&&it.price!=null)
-      set(`F${r}`,{formula:`C${r}*E${r}`,result:it.qty*it.price},{size:10,align:'right',border:box,num:'#,##0'});
+    set(`E${r}`,mp??'',{size:10,align:'right',border:box,num:'#,##0'});
+    if(it.qty!=null&&mp!=null)
+      set(`F${r}`,{formula:`C${r}*E${r}`,result:it.qty*mp},{size:10,align:'right',border:box,num:'#,##0'});
     else
-      set(`F${r}`,it.amount??0,{size:10,align:'right',border:box,num:'#,##0'});
+      set(`F${r}`,p?markedLineAmt(it,p):(it.amount??0),{size:10,align:'right',border:box,num:'#,##0'});
+    if(p){
+      set(`H${r}`,it.price??'',{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+      set(`I${r}`,lineAmt(it),{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+    }
     ws.getRow(r).height=20;
   });
 
@@ -653,6 +729,14 @@ function buildSheet(ws,d,no){
   set(`F${tax}`,{formula:`ROUND(F${sub}*0.1,0)`,result:t.tax},{size:10,align:'right',border:box,num:'#,##0'});
   set(`E${tot}`,'合　計',{size:11,bold:true,fill:NAVY,color:WHITE,align:'center',border:box});
   set(`F${tot}`,{formula:`F${sub}+F${tax}`,result:t.total},{size:11,bold:true,align:'right',border:box,num:'"¥"#,##0'});
+  if(p){
+    set(`H${sub}`,{formula:`SUM(I${first}:I${last})`,result:orig.sub},{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+    ws.mergeCells(`H${sub}:I${sub}`);
+    set(`H${tax}`,orig.tax,{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+    ws.mergeCells(`H${tax}:I${tax}`);
+    set(`H${tot}`,orig.total,{size:10,bold:true,align:'right',border:box,num:'"¥"#,##0',color:GRAYTXT,fill:GRAYFILL});
+    ws.mergeCells(`H${tot}:I${tot}`);
+  }
 
   ws.mergeCells('C11:E11');
   set('C11',{formula:`F${tot}`,result:t.total},{size:16,bold:true,align:'center',border:box,num:'"¥"#,##0'});
@@ -662,9 +746,11 @@ function buildSheet(ws,d,no){
   ws.mergeCells(`A${ns}:A${ne}`);
   set(`A${ns}`,'備考',{size:10,bold:true,fill:GREY,align:'center',border:box});
   ws.mergeCells(`B${ns}:F${ne}`);
-  const note=d.stated_total!=null&&d.stated_total===t.total
-    ? `手書き原本より作成。税込合計 ${yen(t.total)} と一致（税抜${num2(t.sub)}／消費税${num2(t.tax)}）。`
+  const matched=d.stated_total!=null&&d.stated_total===orig.total;
+  let note=matched
+    ? `手書き原本より作成。原本の税込合計 ${yen(orig.total)} と一致。`
     : `手書き原本より作成。原本との金額照合をご確認ください。`;
+  if(p) note+=`\n単価に${p}%の利益を上乗せしています（端数四捨五入）。右側のグレー列は上乗せ前の原本数値（確認用）です。上乗せ後合計 ${yen(t.total)}／上乗せ前合計 ${yen(orig.total)}。`;
   set(`B${ns}`,note,{size:9,border:box,wrap:true,valign:'top'});
   for(let r=ns;r<=ne;r++)ws.getRow(r).height=18;
 }
