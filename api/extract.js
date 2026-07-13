@@ -1,42 +1,46 @@
 // Vercel serverless function — /api/extract
 // フロントエンドからはAnthropic形式のまま受け取り、サーバー側でGemini APIに変換して中継します。
-// GoogleのGemini API無料枠（クレジットカード不要）で動きます。
 // 環境変数 GEMINI_API_KEY をVercelのプロジェクト設定で登録してください。
-// （取得先: https://aistudio.google.com/apikey ）
 //
-// 混雑対策: 高負荷エラー(429/503/high demand)時は自動で待って再試行し、
-// それでも失敗する場合は軽量モデル(gemini-2.5-flash-lite)に自動フォールバックします。
+// モデル戦略: 手書き認識に強い上位モデルを優先し、使えない/混雑時は自動で下位へフォールバック。
+//   gemini-3.1-pro-preview → gemini-2.5-pro → gemini-2.5-flash → gemini-2.5-flash-lite
+// 混雑(429/503)は同一モデルで1回待って再試行してから次へ。
 
 export const config = { api: { bodyParser: { sizeLimit: '15mb' } }, maxDuration: 60 };
 
-const MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+const CHAIN = [
+  process.env.GEMINI_MODEL || 'gemini-3.1-pro-preview',
+  'gemini-2.5-pro',
+  'gemini-2.5-flash',
   'gemini-2.5-flash-lite',
-];
+].filter((m, i, a) => a.indexOf(m) === i);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function genConfigFor(model) {
+  const base = { maxOutputTokens: 16384, temperature: 0, responseMimeType: 'application/json' };
+  if (model.startsWith('gemini-3')) {
+    return { ...base, thinkingConfig: { thinkingLevel: 'low' } };
+  }
+  if (model.includes('2.5-flash')) {
+    return { ...base, thinkingConfig: { thinkingBudget: 0 } };
+  }
+  return base;
+}
 
 async function callGemini(model, parts, apiKey) {
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/'
     + encodeURIComponent(model) + ':generateContent';
   const r = await fetch(url, {
     method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-goog-api-key': apiKey,
-    },
+    headers: { 'content-type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify({
       contents: [{ role: 'user', parts }],
-      generationConfig: {
-        maxOutputTokens: 8192,
-        temperature: 0,
-        responseMimeType: 'application/json',
-        thinkingConfig: { thinkingBudget: 0 },
-      },
+      generationConfig: genConfigFor(model),
     }),
   });
   let data = null;
-  try { data = await r.json(); } catch (e) { /* 空ボディ等 */ }
+  try { data = await r.json(); } catch (e) { /* empty */ }
   return { ok: r.ok, status: r.status, data };
 }
 
@@ -50,7 +54,6 @@ export default async function handler(req, res) {
     return;
   }
   try {
-    // Anthropic形式のリクエストをGemini形式に変換
     const msgs = (req.body && req.body.messages) || [];
     const parts = [];
     for (const m of msgs) {
@@ -65,7 +68,7 @@ export default async function handler(req, res) {
     }
 
     let last = { status: 500, msg: '不明なエラー' };
-    for (const model of MODELS) {
+    for (const model of CHAIN) {
       for (let attempt = 0; attempt < 2; attempt++) {
         const out = await callGemini(model, parts, process.env.GEMINI_API_KEY);
         if (out.ok) {
@@ -77,19 +80,19 @@ export default async function handler(req, res) {
         }
         const msg = (out.data && out.data.error && out.data.error.message)
           ? out.data.error.message : ('Gemini HTTP ' + out.status);
-        const retriable = out.status === 429 || out.status === 503
-          || /high demand|overloaded|try again|quota|resource.*exhaust/i.test(msg);
         last = { status: out.status, msg };
-        if (!retriable) {
+        if (out.status === 401 || out.status === 403) {
           res.status(out.status).json({ error: { message: msg } });
           return;
         }
-        // 混雑: 少し待って再試行（2回目で同モデルを諦め、次のモデルへ）
-        await sleep(1500);
+        const congestion = out.status === 429 || out.status === 503
+          || /high demand|overloaded|try again|quota|resource.*exhaust/i.test(msg);
+        if (congestion && attempt === 0) { await sleep(1500); continue; }
+        break;
       }
     }
-    res.status(last.status || 503).json({
-      error: { message: '混雑のため読み取れませんでした。数分おいて再試行してください（' + last.msg + '）' },
+    res.status(last.status && last.status >= 400 ? last.status : 503).json({
+      error: { message: '読み取れませんでした。数分おいて再試行してください（' + last.msg + '）' },
     });
   } catch (e) {
     res.status(500).json({ error: { message: String(e) } });
