@@ -168,6 +168,25 @@ td.amt{text-align:right;font-family:"Roboto Mono",monospace;padding-right:10px;w
 .bar .btn{font-size:15px;padding:12px 26px}
 
 footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;line-height:1.7}
+.gate{
+  position:fixed;inset:0;background:rgba(245,246,249,.97);backdrop-filter:blur(6px);
+  z-index:50;display:grid;place-items:center;padding:24px;
+}
+.gate-box{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:32px 26px;max-width:400px;width:100%;text-align:center;
+  box-shadow:0 8px 30px rgba(20,30,60,.10);
+}
+.gate-box .mark{margin-bottom:16px}
+.gate-box h2{font-size:19px;font-weight:900;margin:0 0 8px}
+.gate-box p{font-size:13px;color:var(--muted);margin:0 0 20px;line-height:1.7}
+.gate-box input{
+  font-family:inherit;font-size:16px;text-align:center;width:100%;padding:12px;
+  border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);margin-bottom:12px;
+}
+.gate-box input:focus{outline:2px solid #bcd0f5;border-color:var(--navy)}
+.gate-box .btn{width:100%;padding:13px;font-size:15px}
+.gate-err{color:var(--hanko);font-size:12.5px;margin:12px 0 0;min-height:18px}
 .toast{
   position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);
   background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;
@@ -213,6 +232,16 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;lin
 <div class="bar" id="bar">
   <span class="cnt" id="cnt"></span>
   <button class="btn primary" id="export">Excelで書き出す</button>
+</div>
+<div class="gate" id="gate" hidden>
+  <div class="gate-box">
+    <div class="mark">見積</div>
+    <h2>合言葉を入力してください</h2>
+    <p>学習データ（業者ごとの品名・単価）を端末間で共有するために使います。同じ合言葉を入れた端末どうしで共有されます。</p>
+    <input type="password" id="gatePass" placeholder="合言葉" autocomplete="current-password">
+    <button class="btn primary" id="gateGo">はじめる</button>
+    <p class="gate-err" id="gateErr"></p>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -421,6 +450,12 @@ drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('hot')
 
 async function handleFiles(list){
   const files=[...list].filter(f=>f.type.startsWith('image/')||f.type==='application/pdf');
+  if(!files.length) return;
+  // アップロードのたびに他の端末の学習内容を取り込んでから読み取る
+  if(getPass()){
+    try{ await syncPull(); renderLearnBar(); }
+    catch(e){ console.warn('同期失敗',e); toast('同期できませんでした（この端末の学習データで続行します）'); }
+  }
   for(const f of files) await processOne(f);
 }
 
@@ -921,7 +956,7 @@ function renderLearnBar(){
   const s=learnStats();
   const on=!!getPass();
   const syncLine=on
-    ? `<br><span style="color:var(--ok)">✓ 端末間で共有中</span>（合言葉が同じ端末と自動同期）・<button id="lbSyncNow">今すぐ同期</button>・<button id="lbSyncOff">共有をやめる</button>`
+    ? `<br><span style="color:var(--ok)">✓ 端末間で共有中</span>（アップロードのたびに自動同期）・<button id="lbSyncNow">今すぐ同期</button>・<button id="lbSyncOff">合言葉を変更</button>`
     : `<br><button id="lbSyncOn">📱 他の端末と共有する</button>`;
   if(!s.vendors){
     el.innerHTML='Excelを書き出すと、その内容を業者ごとに学習して次回の読み取り精度が上がります。'+syncLine;
@@ -944,8 +979,7 @@ function renderLearnBar(){
     catch(e){ alert('同期できませんでした: '+e.message); }
   };
   if(btnOff) btnOff.onclick=()=>{
-    if(!confirm('この端末での共有をやめます（サーバー上のデータは消えません）。よろしいですか？')) return;
-    setPass(''); renderLearnBar(); toast('共有をやめました');
+    setPass(''); renderLearnBar(); openGate();
   };
   if(!s.vendors) return;
   $('#lbExport').onclick=()=>{
@@ -976,8 +1010,41 @@ function renderLearnBar(){
   };
 }
 renderLearnBar();
-// 共有ONなら起動時にサーバーの学習データを取り込む
-(async()=>{ if(getPass()){ try{ await syncPull(); renderLearnBar(); }catch(e){ console.warn('同期失敗',e); } } })();
+
+/* ---------- 合言葉ゲート（初回に合言葉を入れるまで使えない） ---------- */
+async function openGate(){
+  const gate=$('#gate'), inp=$('#gatePass'), go=$('#gateGo'), err=$('#gateErr');
+  gate.hidden=false;
+  setTimeout(()=>inp.focus(),100);
+  const submit=async()=>{
+    const p=(inp.value||'').trim();
+    if(!p){ err.textContent='合言葉を入力してください'; return; }
+    go.disabled=true; err.textContent=''; go.textContent='確認中…';
+    setPass(p);
+    try{
+      await syncPull();
+      gate.hidden=true;
+      renderLearnBar();
+      toast('端末間の共有を開始しました');
+    }catch(e){
+      setPass('');
+      err.textContent=(e.message||'').includes('合言葉')?'合言葉が違います':('接続できませんでした: '+e.message);
+    }finally{
+      go.disabled=false; go.textContent='はじめる';
+    }
+  };
+  go.onclick=submit;
+  inp.onkeydown=e=>{ if(e.key==='Enter') submit(); };
+}
+(async()=>{
+  if(getPass()){
+    try{ await syncPull(); renderLearnBar(); }
+    catch(e){ console.warn('同期失敗',e); if(String(e.message||'').includes('合言葉')){ setPass(''); openGate(); } }
+    return;
+  }
+  // 合言葉が未設定なら、サーバー側で共有が有効な場合のみゲートを出す
+  if(await syncAvailable()) openGate();
+})();
 
 /* ---------- util ---------- */
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
