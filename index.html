@@ -257,6 +257,7 @@ function learnFromEstimates(){
       rec.count++;
       if(it.unit) rec.unit=it.unit;
       if(it.price!=null) rec.price=it.price; // 上乗せ前の元単価を学習
+      rec.ts=Date.now(); // 端末間マージ用の更新時刻
       prof.items[nm]=rec;
       learned++;
     });
@@ -317,6 +318,54 @@ function learnStats(){
   let items=0;
   vendors.forEach(v=>{items+=Object.keys(store[v].items||{}).length});
   return {vendors:vendors.length, items};
+}
+
+/* ---------- 端末間の共有（合言葉が一致する端末どうしで学習データを同期） ---------- */
+const PASS_KEY='tegaki_sync_pass_v1';
+const getPass=()=>{ try{ return localStorage.getItem(PASS_KEY)||''; }catch(e){ return ''; } };
+const setPass=p=>{ try{ p?localStorage.setItem(PASS_KEY,p):localStorage.removeItem(PASS_KEY); }catch(e){} };
+
+// 2つの学習ストアを統合（サーバー側と同じルール: 品名ごとに新しい方を採用）
+function mergeStores(a,b){
+  const out={};
+  const vendors=new Set([...Object.keys(a||{}),...Object.keys(b||{})]);
+  for(const v of vendors){
+    const pa=(a&&a[v])||{items:{},updated:0};
+    const pb=(b&&b[v])||{items:{},updated:0};
+    const items={};
+    const names=new Set([...Object.keys(pa.items||{}),...Object.keys(pb.items||{})]);
+    for(const nm of names){
+      const ia=(pa.items||{})[nm], ib=(pb.items||{})[nm];
+      if(!ia){ items[nm]=ib; continue; }
+      if(!ib){ items[nm]=ia; continue; }
+      const ta=ia.ts||0, tb=ib.ts||0;
+      const w=tb>ta?ib:ia;
+      items[nm]={unit:w.unit||ia.unit||ib.unit||'', price:w.price!=null?w.price:(ia.price!=null?ia.price:ib.price), count:(ia.count||0)+(ib.count||0), ts:Math.max(ta,tb)};
+    }
+    out[v]={items,updated:Math.max(pa.updated||0,pb.updated||0)};
+  }
+  return out;
+}
+
+async function syncPull(){
+  const pass=getPass(); if(!pass) return null;
+  const r=await fetch('/api/sync',{headers:{'x-sync-pass':pass},cache:'no-store'});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+  const merged=mergeStores(loadStore(), j.store||{});
+  saveStore(merged);
+  return merged;
+}
+async function syncPush(){
+  const pass=getPass(); if(!pass) return null;
+  const r=await fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json','x-sync-pass':pass},body:JSON.stringify({store:loadStore()})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+  if(j.store) saveStore(mergeStores(loadStore(), j.store));
+  return j.store;
+}
+async function syncAvailable(){
+  try{ const r=await fetch('/api/sync?status=1',{cache:'no-store'}); const j=await r.json(); return !!j.configured; }catch(e){ return false; }
 }
 
 const PROMPT = `あなたは日本の手書き見積書・請求書を読み取る専門家です。画像/PDFの見積書・請求書を読み取り、JSONのみで返してください（前後の説明やコードフェンスは禁止、ミニファイ化したJSON1個だけ）。
@@ -731,6 +780,9 @@ async function exportExcel(){
   const n=learnFromEstimates();
   renderLearnBar();
   toast(n?`Excelを書き出し、${n}項目を学習しました`:'Excelを書き出しました');
+  if(n&&getPass()){ // 共有ONなら学習内容を他の端末へ反映
+    syncPush().then(()=>renderLearnBar()).catch(e=>console.warn('同期失敗',e));
+  }
 }
 
 function buildSheet(ws,d,no){
@@ -867,13 +919,35 @@ function renderLearnBar(){
   const el=$('#learnbar');
   if(!el) return;
   const s=learnStats();
+  const on=!!getPass();
+  const syncLine=on
+    ? `<br><span style="color:var(--ok)">✓ 端末間で共有中</span>（合言葉が同じ端末と自動同期）・<button id="lbSyncNow">今すぐ同期</button>・<button id="lbSyncOff">共有をやめる</button>`
+    : `<br><button id="lbSyncOn">📱 他の端末と共有する</button>`;
   if(!s.vendors){
-    el.innerHTML='Excelを書き出すと、その内容を業者ごとに学習して次回の読み取り精度が上がります。';
-    return;
-  }
-  el.innerHTML=`学習済み: <b>${s.vendors}業者 / ${s.items}項目</b>（次回の読み取りヒントに使用・この端末内のみに保存）
+    el.innerHTML='Excelを書き出すと、その内容を業者ごとに学習して次回の読み取り精度が上がります。'+syncLine;
+  }else{
+    el.innerHTML=`学習済み: <b>${s.vendors}業者 / ${s.items}項目</b>（次回の読み取りヒントに使用）
     <button id="lbExport">書き出し</button>・<button id="lbImport">取り込み</button>・<button id="lbClear">消去</button>
-    <input type="file" id="lbFile" accept="application/json,.json" hidden>`;
+    <input type="file" id="lbFile" accept="application/json,.json" hidden>`+syncLine;
+  }
+  const btnOn=$('#lbSyncOn'), btnNow=$('#lbSyncNow'), btnOff=$('#lbSyncOff');
+  if(btnOn) btnOn.onclick=async()=>{
+    if(!await syncAvailable()){ alert('サーバー側の共有設定がまだです。\n\nVercelで次の3つを設定してください:\n1) Storage で Upstash Redis を作成しプロジェクトに接続\n2) 環境変数 SYNC_PASSCODE に合言葉を設定\n3) 再デプロイ'); return; }
+    const p=prompt('合言葉を入力してください（Vercelの SYNC_PASSCODE と同じもの）。\n同じ合言葉を入れた端末どうしで学習データが共有されます。');
+    if(!p) return;
+    setPass(p.trim());
+    try{ await syncPull(); await syncPush(); renderLearnBar(); toast('共有を開始しました'); }
+    catch(e){ setPass(''); renderLearnBar(); alert('同期できませんでした: '+e.message); }
+  };
+  if(btnNow) btnNow.onclick=async()=>{
+    try{ await syncPull(); await syncPush(); renderLearnBar(); toast('同期しました'); }
+    catch(e){ alert('同期できませんでした: '+e.message); }
+  };
+  if(btnOff) btnOff.onclick=()=>{
+    if(!confirm('この端末での共有をやめます（サーバー上のデータは消えません）。よろしいですか？')) return;
+    setPass(''); renderLearnBar(); toast('共有をやめました');
+  };
+  if(!s.vendors) return;
   $('#lbExport').onclick=()=>{
     const blob=new Blob([JSON.stringify(loadStore(),null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);
@@ -902,6 +976,8 @@ function renderLearnBar(){
   };
 }
 renderLearnBar();
+// 共有ONなら起動時にサーバーの学習データを取り込む
+(async()=>{ if(getPass()){ try{ await syncPull(); renderLearnBar(); }catch(e){ console.warn('同期失敗',e); } } })();
 
 /* ---------- util ---------- */
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
