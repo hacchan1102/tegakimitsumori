@@ -116,6 +116,11 @@ td.numflag{background:#fcf3da50}
 .flag{display:inline-block;color:var(--warn);font-weight:700;font-size:10.5px;margin-left:4px;white-space:nowrap}
 td.amt{position:relative}
 td.amt .flag{display:block;margin:2px 0 0;text-align:right}
+.flag.hintflag{color:var(--navy);font-weight:500}
+.learnbar{margin-top:16px;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.9}
+.learnbar b{color:var(--navy-d)}
+.learnbar button{appearance:none;border:0;background:none;color:var(--navy);font-size:11.5px;font-family:inherit;cursor:pointer;padding:2px 6px;border-radius:6px}
+.learnbar button:hover{background:var(--grey);text-decoration:underline}
 td input{
   font-family:inherit;font-size:13px;border:1px solid transparent;border-radius:6px;
   padding:6px 7px;width:100%;background:transparent;color:inherit;
@@ -197,6 +202,8 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;lin
   <div id="combineBanner"></div>
   <div id="results"></div>
 
+  <div class="learnbar" id="learnbar"></div>
+
   <footer>
     画像の読み取りにAIを使用します。書き出しはお使いの端末内で生成され、Excelとして保存されます。<br>
     読み取り結果は必ず原本と照合してください。
@@ -217,6 +224,100 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;lin
      同梱の api/extract.js を配置（APIキーは環境変数に置く）
    ============================================================ */
 const API_ENDPOINT = "/api/extract";
+
+/* ============================================================
+   学習ストア: 業者ごとの「品名・単位・単価」の実績を端末内に保存し、
+   次回の読み取り時にAIへヒントとして渡す。データはこの端末のブラウザ内のみ。
+   ============================================================ */
+const LS_KEY='tegaki_vendor_profiles_v1';
+function loadStore(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; }
+}
+function saveStore(s){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){ console.warn('保存失敗',e); }
+}
+function vendorKey(d){
+  const v=(d.vendor&&d.vendor[0])?String(d.vendor[0]):'';
+  return v.replace(/[\s　（）()]/g,'').trim().slice(0,40);
+}
+// 確定した内容（＝Excel書き出し時点）を業者ごとに学習
+function learnFromEstimates(){
+  const store=loadStore();
+  let learned=0;
+  estimates.forEach(e=>{
+    const d=e.data;
+    const v=vendorKey(d);
+    if(!v) return;
+    const prof=store[v]||{items:{},updated:0};
+    d.items.forEach(it=>{
+      if(it.isHeader) return;
+      const nm=(it.name||'').trim();
+      if(!nm||nm.length>40) return;
+      const rec=prof.items[nm]||{unit:'',price:null,count:0};
+      rec.count++;
+      if(it.unit) rec.unit=it.unit;
+      if(it.price!=null) rec.price=it.price; // 上乗せ前の元単価を学習
+      prof.items[nm]=rec;
+      learned++;
+    });
+    prof.updated=Date.now();
+    store[v]=prof;
+  });
+  if(learned) saveStore(store);
+  return learned;
+}
+// AIに渡す実績リストを生成
+function buildGlossaryText(){
+  const store=loadStore();
+  const vendors=Object.keys(store).sort((a,b)=>(store[b].updated||0)-(store[a].updated||0));
+  if(!vendors.length) return '';
+  const out=[];
+  for(const v of vendors.slice(0,8)){
+    const items=Object.entries(store[v].items||{}).sort((a,b)=>b[1].count-a[1].count).slice(0,25);
+    if(!items.length) continue;
+    out.push('■ '+v);
+    for(const [nm,rec] of items){
+      const bits=[];
+      if(rec.unit) bits.push('単位'+rec.unit);
+      if(rec.price!=null) bits.push('単価'+rec.price);
+      out.push('- '+nm+(bits.length?'（'+bits.join('・')+'）':''));
+    }
+  }
+  let text=out.join('\n');
+  if(text.length>3000) text=text.slice(0,3000);
+  return text;
+}
+function promptWithGlossary(){
+  const g=buildGlossaryText();
+  if(!g) return PROMPT;
+  return PROMPT+`
+
+【過去に確定済みの業者別 品名・単位・単価の実績（重要な参考情報）】
+同じ業者の書類なら、下記と同じ品名表記・同じ単価になっている可能性が高いです。崩し字が読みにくい箇所は、下記のリストに一致する品名がないか必ず照合してください。ただし原本と明らかに違う場合は原本を優先してください。
+${g}`;
+}
+// 読み取り結果を過去実績と突き合わせ、単価違いを要確認にする
+function applyLearning(d){
+  const store=loadStore();
+  const prof=store[vendorKey(d)];
+  if(!prof||!prof.items) return;
+  d.items.forEach(it=>{
+    if(it.isHeader) return;
+    const rec=prof.items[(it.name||'').trim()];
+    if(!rec) return;
+    if(rec.price!=null&&it.price!=null&&it.price!==rec.price){
+      it.number_uncertain=true;
+      it.learn_hint='前回単価 '+Number(rec.price).toLocaleString('ja-JP');
+    }
+  });
+}
+function learnStats(){
+  const store=loadStore();
+  const vendors=Object.keys(store);
+  let items=0;
+  vendors.forEach(v=>{items+=Object.keys(store[v].items||{}).length});
+  return {vendors:vendors.length, items};
+}
 
 const PROMPT = `あなたは日本の手書き見積書・請求書を読み取る専門家です。画像/PDFの見積書・請求書を読み取り、JSONのみで返してください（前後の説明やコードフェンスは禁止、ミニファイ化したJSON1個だけ）。
 
@@ -308,11 +409,12 @@ async function processOne(file){
   try{
     const b64=dataURL.split(',')[1];
     const media=dataURL.slice(5,dataURL.indexOf(';'))||'image/jpeg';
-    const parsed=await extract(b64,media,PROMPT);
+    const parsed=await extract(b64,media,promptWithGlossary());
     // 新形式 {estimates:[...]} と旧形式（単一オブジェクト）の両対応
     let list=Array.isArray(parsed.estimates)?parsed.estimates:[parsed];
     if(!list.length) throw new Error('見積書を検出できませんでした');
     list.forEach(normalize);
+    list.forEach(applyLearning);
 
     // 1件だけの場合のみ、合計不一致時の検算パスを実行
     if(list.length===1){
@@ -391,7 +493,8 @@ function normalize(d){
     name:it.name||'', unit:it.unit||'',
     qty:num(it.qty), price:num(it.price), amount:num(it.amount),
     name_uncertain:!!it.name_uncertain,
-    number_uncertain:!!(it.number_uncertain||it.uncertain)
+    number_uncertain:!!(it.number_uncertain||it.uncertain),
+    learn_hint:it.learn_hint||''
   }));
 }
 function lineAmt(it){
@@ -518,7 +621,7 @@ function itemRow(id,it,i,no){
     <td class="c ${it.number_uncertain?'numflag':''}" style="width:74px"><input data-f="qty" data-i="${i}" value="${it.qty??''}"></td>
     <td class="c" style="width:60px"><input data-f="unit" data-i="${i}" value="${escapeAttr(it.unit)}"></td>
     <td class="r ${it.number_uncertain?'numflag':''}" style="width:96px"><input data-f="price" data-i="${i}" value="${it.price??''}"></td>
-    <td class="amt ${it.number_uncertain?'numflag':''}" data-amt="${i}">${num2(lineAmt(it))}${it.number_uncertain?'<span class="flag">金額要確認</span>':''}</td>
+    <td class="amt ${it.number_uncertain?'numflag':''}" data-amt="${i}">${num2(lineAmt(it))}${it.number_uncertain?'<span class="flag">金額要確認</span>':''}${it.learn_hint?'<span class="flag hintflag">'+escapeHtml(it.learn_hint)+'</span>':''}</td>
   </tr>`;
 }
 function num2(n){return Number(n||0).toLocaleString('ja-JP')}
@@ -625,7 +728,9 @@ async function exportExcel(){
   const a=document.createElement('a');
   a.href=url;a.download=`請求書_${estimates.length}件.xlsx`;a.click();
   URL.revokeObjectURL(url);
-  toast('Excelを書き出しました');
+  const n=learnFromEstimates();
+  renderLearnBar();
+  toast(n?`Excelを書き出し、${n}項目を学習しました`:'Excelを書き出しました');
 }
 
 function buildSheet(ws,d,no){
@@ -756,6 +861,47 @@ function buildSheet(ws,d,no){
   set(`B${ns}`,note,{size:9,border:box,wrap:true,valign:'top'});
   for(let r=ns;r<=ne;r++)ws.getRow(r).height=18;
 }
+
+/* ---------- 学習データのUI ---------- */
+function renderLearnBar(){
+  const el=$('#learnbar');
+  if(!el) return;
+  const s=learnStats();
+  if(!s.vendors){
+    el.innerHTML='Excelを書き出すと、その内容を業者ごとに学習して次回の読み取り精度が上がります。';
+    return;
+  }
+  el.innerHTML=`学習済み: <b>${s.vendors}業者 / ${s.items}項目</b>（次回の読み取りヒントに使用・この端末内のみに保存）
+    <button id="lbExport">書き出し</button>・<button id="lbImport">取り込み</button>・<button id="lbClear">消去</button>
+    <input type="file" id="lbFile" accept="application/json,.json" hidden>`;
+  $('#lbExport').onclick=()=>{
+    const blob=new Blob([JSON.stringify(loadStore(),null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='学習データ.json';a.click();
+    URL.revokeObjectURL(url);
+  };
+  $('#lbImport').onclick=()=>$('#lbFile').click();
+  $('#lbFile').onchange=async ev=>{
+    const f=ev.target.files[0]; if(!f) return;
+    try{
+      const incoming=JSON.parse(await f.text());
+      const store=loadStore();
+      Object.entries(incoming).forEach(([v,prof])=>{
+        const cur=store[v]||{items:{},updated:0};
+        Object.entries(prof.items||{}).forEach(([nm,rec])=>{ cur.items[nm]=rec; });
+        cur.updated=Math.max(cur.updated||0, prof.updated||0);
+        store[v]=cur;
+      });
+      saveStore(store); renderLearnBar(); toast('学習データを取り込みました');
+    }catch(e){ toast('取り込みに失敗しました'); }
+  };
+  $('#lbClear').onclick=()=>{
+    if(!confirm('学習データを全て消去します。よろしいですか？')) return;
+    saveStore({}); renderLearnBar(); toast('学習データを消去しました');
+  };
+}
+renderLearnBar();
 
 /* ---------- util ---------- */
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
