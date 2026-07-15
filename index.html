@@ -186,8 +186,9 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;lin
 }
 .gate-box input:focus{outline:2px solid #bcd0f5;border-color:var(--navy)}
 .gate-box .btn{width:100%;padding:13px;font-size:15px}
-.gate-show{display:flex;align-items:center;gap:6px;justify-content:center;font-size:12.5px;color:var(--muted);margin:10px 0 4px;cursor:pointer}
-.gate-show input{width:auto;margin:0}
+.gate-show{display:flex;align-items:center;gap:6px;justify-content:center;font-size:12.5px;color:var(--muted);margin:10px 0 4px}
+.gate-show input{width:auto;margin:0;cursor:pointer}
+.gate-show label{cursor:pointer}
 #gatePass.masked{-webkit-text-security:disc;text-security:disc}
 .gate-err{color:var(--hanko);font-size:12.5px;margin:12px 0 0;min-height:18px}
 .toast{
@@ -242,7 +243,7 @@ footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;lin
     <h2>合言葉を入力してください</h2>
     <p>学習データ（業者ごとの品名・単価）を端末間で共有するために使います。同じ合言葉を入れた端末どうしで共有されます。</p>
     <input type="text" id="gatePass" class="masked" placeholder="合言葉" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" name="tegaki-sync-code" inputmode="text">
-    <label class="gate-show"><input type="checkbox" id="gateShow"> 入力内容を表示する</label>
+    <div class="gate-show"><input type="checkbox" id="gateShow"><label for="gateShow">入力内容を表示する</label></div>
     <button class="btn primary" id="gateGo">はじめる</button>
     <p class="gate-err" id="gateErr"></p>
   </div>
@@ -1022,7 +1023,8 @@ async function openGate(){
   inp.value=''; // ブラウザが勝手に入れた値をクリア
   setTimeout(()=>{ inp.value=''; inp.focus(); },100);
   if(show){ show.checked=false; inp.classList.add('masked');
-    show.onchange=()=>{ inp.classList.toggle('masked', !show.checked); };
+    const sync=()=>{ inp.classList.toggle('masked', !show.checked); };
+    show.onchange=sync; show.onclick=()=>setTimeout(sync,0);
   }
   const submit=async()=>{
     const p=(inp.value||'').trim();
