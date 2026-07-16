@@ -926,7 +926,7 @@ function renderLearnBar(){
   const el=$('#learnbar');
   if(!el) return;
   const s=learnStats();
-  const syncLine=`<br><span style="color:var(--ok)">✓ 端末間で共有中</span>（アップロードのたびに自動同期）・<button id="lbSyncNow">今すぐ同期</button>`;
+  const syncLine=`<br><span style="color:var(--ok)">✓ 端末間で自動共有中</span>`;
   if(!s.vendors){
     el.innerHTML='Excelを書き出すと、その内容を業者ごとに学習して次回の読み取り精度が上がります。'+syncLine;
   }else{
@@ -934,11 +934,6 @@ function renderLearnBar(){
     <button id="lbExport">書き出し</button>・<button id="lbImport">取り込み</button>・<button id="lbClear">消去</button>
     <input type="file" id="lbFile" accept="application/json,.json" hidden>`+syncLine;
   }
-  const btnNow=$('#lbSyncNow');
-  if(btnNow) btnNow.onclick=async()=>{
-    try{ await syncPull(); await syncPush(); renderLearnBar(); toast('同期しました'); }
-    catch(e){ alert('同期できませんでした: '+e.message); }
-  };
   if(!s.vendors) return;
   $('#lbExport').onclick=()=>{
     const blob=new Blob([JSON.stringify(loadStore(),null,2)],{type:'application/json'});
