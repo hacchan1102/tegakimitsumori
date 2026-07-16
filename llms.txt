@@ -1,0 +1,40 @@
+# みんなの薬剤師
+
+> 現役の看護師・薬剤師が監修・運営する、市販薬（OTC医薬品）の情報サイト。気になる症状から市販薬を探せ、お薬の疑問は公式LINEで薬剤師に無料相談できます。
+
+## 症状別の市販薬ガイド
+
+- [頭痛におすすめの市販薬](https://minnnanoyakuzaishi.com/headache.html)
+- [風邪におすすめの市販薬](https://minnnanoyakuzaishi.com/cold.html)
+- [花粉症におすすめの市販薬](https://minnnanoyakuzaishi.com/allergy.html)
+- [胃痛・胃もたれにおすすめの市販薬](https://minnnanoyakuzaishi.com/stomach.html)
+- [便秘におすすめの市販薬](https://minnnanoyakuzaishi.com/constipation.html)
+- [下痢におすすめの市販薬](https://minnnanoyakuzaishi.com/diarrhea.html)
+- [喉の痛みにおすすめの市販薬](https://minnnanoyakuzaishi.com/throat.html)
+- [疲労・倦怠感におすすめの市販薬](https://minnnanoyakuzaishi.com/fatigue.html)
+
+## コラム
+
+- [頭痛薬は毎日飲んでも大丈夫？飲みすぎの注意点](https://minnnanoyakuzaishi.com/column-headache-daily.html): 市販の頭痛薬を毎日飲み続けることのリスクと、使用日数の目安、受診のサインを薬剤師が解説します。
+- [眠くなりにくい花粉症薬の選び方](https://minnnanoyakuzaishi.com/column-allergy-drowsy.html): 花粉症の飲み薬で眠気が出にくいタイプの見分け方と、運転前に気をつけたいポイントを解説します。
+- [便秘薬はクセになる？タイプ別の選び方](https://minnnanoyakuzaishi.com/column-constipation-habit.html): 便秘薬が「クセになる」と言われる理由と、刺激性・非刺激性のタイプ別の選び方を薬剤師が解説します。
+- [市販薬えらびに迷ったら、薬剤師に相談を](https://minnnanoyakuzaishi.com/column-pharmacist-consult.html): 市販薬を選ぶときに薬剤師へ相談するメリットと、LINEで気軽に相談できる仕組みを紹介します。
+- [急な腹痛、市販薬で対処していい？原因と受診の目安](https://minnnanoyakuzaishi.com/column-stomachache.html): 急な腹痛の主な原因と、市販薬で様子を見てよい場合・受診すべき場合の見分け方を薬剤師が解説します。
+- [下痢が止まらないときの対処法と市販薬の選び方](https://minnnanoyakuzaishi.com/column-diarrhea-care.html): 下痢が続くときの水分補給のコツ、止めてよいか見極めるポイント、市販薬の選び方を解説します。
+- [熱が出たとき市販の解熱剤を使っていい？大人の発熱対処](https://minnnanoyakuzaishi.com/column-fever-adult.html): 発熱したときに市販の解熱鎮痛薬を使う目安と、水分補給・休養のポイント、受診のサインを解説します。
+- [吐き気・嘔吐があるときの対処と注意点](https://minnnanoyakuzaishi.com/column-nausea.html): 吐き気や嘔吐があるときの安静・水分のとり方と、注意したい症状、受診の目安を薬剤師が解説します。
+- [片頭痛と緊張型頭痛の違い・市販薬の選び方](https://minnnanoyakuzaishi.com/column-headache-types.html): よくある2つの頭痛「緊張型頭痛」と「片頭痛」の違いと、市販薬を使うときのポイントを解説します。
+- [便秘を解消するには？食事・運動・市販薬のポイント](https://minnnanoyakuzaishi.com/column-constipation-relief.html): 便秘を解消するための生活習慣の見直し方と、市販薬のタイプ別の選び方を薬剤師がやさしく解説します。
+- [風邪の引き始めにできる対処と市販薬](https://minnnanoyakuzaishi.com/column-cold-early.html): 風邪の引き始めに大切な休養・水分のとり方と、症状に合わせた市販薬の選び方を解説します。
+- [胃もたれ・胸やけの原因と市販薬の選び方](https://minnnanoyakuzaishi.com/column-heartburn.html): 胃もたれや胸やけが起こる主な原因と、市販薬のタイプ別の選び方を薬剤師が解説します。
+- [二日酔いのつらい症状をやわらげる方法](https://minnnanoyakuzaishi.com/column-hangover.html): 二日酔いの頭痛・吐き気・だるさをやわらげるための水分補給や休養のポイントを解説します。
+- [生理痛がつらいときの市販薬の選び方](https://minnnanoyakuzaishi.com/column-period-pain.html): 生理痛に使われる市販の鎮痛薬の選び方と、痛みが強いときの受診の目安を薬剤師が解説します。
+
+## サイト情報
+
+- [会社情報](https://minnnanoyakuzaishi.com/company.html)
+- [プライバシーポリシー](https://minnnanoyakuzaishi.com/privacy.html)
+
+## お問い合わせ
+
+- 公式LINE: https://lin.ee/nU0UwL9
