@@ -1,714 +1,980 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Google tag (gtag.js) - GA4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-H3V475P3YR"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-H3V475P3YR');
-  // LINE友だち追加ボタンのクリックを計測
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('a[href*="lin.ee"], a[href*="line.me"]').forEach(function (el) {
-      el.addEventListener('click', function () {
-        gtag('event', 'line_add_click', {
-          link_url: el.href,
-          link_text: (el.textContent || '').trim().slice(0, 50),
-          page_path: location.pathname
-        });
-      });
-    });
-  });
-</script>
-
-<title>みんなの薬剤師｜看護師・薬剤師が教える市販薬の選び方・LINE無料相談</title>
-<meta name="description" content="現役の看護師・薬剤師が監修。あなたのスマホが一番身近な薬剤師に。LINEでサクッと市販薬相談、専門家が匿名・無料でお答えします。症状別にお薬も探せます。">
-<meta name="keywords" content="市販薬,薬剤師,看護師,LINE,相談,匿名,無料,OTC医薬品,頭痛,風邪,花粉症">
-<meta name="robots" content="index, follow">
-<meta name="theme-color" content="#10B981">
-<link rel="canonical" href="https://www.minnnanoyakuzaishi.com/">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="みんなの薬剤師">
-<meta property="og:locale" content="ja_JP">
-<meta property="og:title" content="みんなの薬剤師｜あなたのスマホが、一番身近な薬剤師に。">
-<meta property="og:description" content="LINEでサクッと市販薬相談。専門家が匿名・無料でお答えします。">
-<meta property="og:url" content="https://www.minnnanoyakuzaishi.com/">
-<meta property="og:image" content="https://www.minnnanoyakuzaishi.com/ogp.jpg">
-<meta name="twitter:card" content="summary_large_image">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      "name": "みんなの薬剤師",
-      "url": "https://www.minnnanoyakuzaishi.com/",
-      "inLanguage": "ja",
-      "description": "現役の看護師・薬剤師が運営する、LINEで市販薬を匿名・無料で相談できるサービス。症状別のお薬選びも。",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://www.minnnanoyakuzaishi.com/medicines.html?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    },
-    {
-      "@type": "Organization",
-      "name": "みんなの薬剤師",
-      "url": "https://www.minnnanoyakuzaishi.com/",
-      "logo": "https://www.minnnanoyakuzaishi.com/assets/logo.png",
-      "description": "あなたのスマホが、一番身近な薬剤師に。LINEで市販薬を匿名・無料で相談できるサービスです。",
-      "sameAs": [
-        "https://lin.ee/yQA2ON5"
-      ],
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "Customer Service",
-        "url": "https://lin.ee/yQA2ON5"
-      }
-    },
-    {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "ホーム", "item": "https://www.minnnanoyakuzaishi.com/index.html" }
-      ]
-    }
-  ]
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>手書き請求書 → Excel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<style>
+:root{
+  --navy:#2F5597; --navy-d:#21426f; --ink:#1a1f2b; --muted:#697384;
+  --line:#e4e7ee; --paper:#f5f6f9; --card:#ffffff; --hanko:#c8362b;
+  --grey:#f2f3f6; --ok:#1f7a4d; --ok-bg:#e7f4ec; --warn:#9a6700; --warn-bg:#fcf3da;
 }
-</script>
-  
-  <style>
-  :root{
-    --green:#06C755;          /* LINE official green */
-    --green-dark:#05b34c;     /* darker shade for gradient */
-    --green-deep:#059e43;
-    --navy:#22354a;
-    --navy-deep:#1c2e43;
-    --navy-btn:#38495e;
-    --ink:#2a3b4d;
-    --gray:#647688;
-    --line-green:#06C755;
-    --shield-green:#5aa96a;   /* keep site brand green for non-LINE shield */
-    --icon-blue:#2f6ea5;
-    --icon-blue-lt:#5b93c7;
-    --teal:#3f9d8f;
-    --card-bg:#ffffff;
-    --hero-a:#eef4f9;
-    --hero-b:#eaf3ee;
-    --font:"Hiragino Kaku Gothic ProN","Hiragino Sans","BIZ UDPGothic","Yu Gothic","YuGothic","Meiryo",system-ui,sans-serif;
-  }
-  *{margin:0;padding:0;box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{
-    font-family:var(--font);
-    color:var(--ink);
-    background:#fff;
-    line-height:1.6;
-    -webkit-font-smoothing:antialiased;
-  }
-  a{text-decoration:none;color:inherit}
-  img,svg{display:block}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:"Noto Sans JP",system-ui,sans-serif;
+  color:var(--ink); background:var(--paper);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.num{font-family:"Roboto Mono",monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:860px;margin:0 auto;padding:0 18px 140px}
 
-  /* ---------- Header ---------- */
-  header{
-    position:sticky;top:0;z-index:50;
-    background:#fff;
-    border-bottom:1px solid #eef1f4;
-  }
-  .nav{
-    max-width:1240px;margin:0 auto;
-    padding:18px 40px;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand .logo-icon{height:40px;width:auto}
-  .brand .brand-name{
-    font-size:24px;font-weight:800;color:var(--navy);
-    letter-spacing:.02em;
-  }
-  .nav-links{display:flex;align-items:center;gap:38px}
-  .nav-links a{
-    font-size:16px;font-weight:700;color:var(--navy);
-  }
-  .nav-links a:hover{color:var(--green)}
-  .nav-links a.line-btn,
-  .nav-links a.line-btn:hover{color:#fff}
-  .line-btn{
-    display:inline-flex;align-items:center;gap:9px;
-    background:linear-gradient(180deg,var(--green),var(--green-dark));
-    color:#fff;font-weight:700;font-size:16px;
-    padding:12px 24px;border-radius:999px;
-    box-shadow:0 6px 14px rgba(6,199,85,.30);
-  }
-  .line-btn:hover{color:#fff;filter:brightness(1.03)}
-  .line-btn .chat-ico{width:18px;height:18px;fill:#fff}
+/* header */
+header{padding:34px 0 22px;text-align:center}
+.mark{
+  width:64px;height:64px;margin:0 auto 14px;border:2.5px solid var(--hanko);
+  border-radius:50%;display:grid;place-items:center;color:var(--hanko);
+  font-weight:900;font-size:20px;letter-spacing:1px;
+  transform:rotate(-7deg);box-shadow:0 0 0 4px #fff inset;
+}
+h1{font-size:26px;font-weight:900;letter-spacing:.02em;margin:0 0 6px}
+header p{margin:0;color:var(--muted);font-size:14px}
 
-  /* ---------- Hero ---------- */
-  .hero{
-    position:relative;overflow:hidden;
-    background:linear-gradient(120deg,var(--hero-a) 0%,#eaf1f6 45%,var(--hero-b) 100%);
-    padding:96px 0 120px;
-  }
-  .hero-inner{
-    position:relative;z-index:2;
-    max-width:1240px;margin:0 auto;padding:0 40px;
-    display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;
-  }
-  .hero h1{
-    font-size:62px;line-height:1.28;font-weight:800;
-    color:var(--navy-deep);letter-spacing:.01em;
-    margin-bottom:30px;
-  }
-  .hero .lead{
-    font-size:22px;line-height:1.75;color:var(--gray);
-    font-weight:500;margin-bottom:40px;
-  }
-  .cta{
-    display:inline-flex;align-items:center;gap:16px;
-    background:linear-gradient(180deg,var(--green),var(--green-dark));
-    color:#fff;font-weight:800;font-size:24px;
-    padding:22px 44px;border-radius:999px;
-    box-shadow:0 12px 26px rgba(6,199,85,.34);
-    transition:transform .15s ease,filter .15s ease;
-  }
-  .cta:hover{color:#fff;transform:translateY(-2px);filter:brightness(1.03)}
-  .cta .line-circle{
-    width:44px;height:44px;border-radius:50%;background:#fff;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .cta .line-circle span{
-    color:var(--line-green);font-weight:800;font-size:12px;letter-spacing:.02em;
-  }
+/* uploader */
+.drop{
+  background:var(--card);border:2px dashed #c4cad8;border-radius:16px;
+  padding:38px 22px;text-align:center;transition:border-color .15s,background .15s;
+  position:relative;
+}
+.drop.hot{border-color:var(--navy);background:#f3f7ff}
+.drop .big{font-size:16px;font-weight:700;margin:0 0 4px}
+.drop .sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn{
+  appearance:none;border:0;cursor:pointer;font-family:inherit;font-weight:700;
+  font-size:14px;border-radius:10px;padding:11px 18px;transition:transform .08s,background .15s,box-shadow .15s;
+}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.primary:hover{background:var(--navy-d)}
+.btn.ghost{background:var(--grey);color:var(--ink)}
+.btn.ghost:hover{background:#e7e9ef}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.hint{margin:14px 2px 0;color:var(--muted);font-size:12px;text-align:center}
 
-  /* phone mockup */
-  .phone{
-    width:326px;height:640px;
-    background:#141b24;border-radius:46px;
-    padding:12px;
-    box-shadow:0 30px 60px rgba(31,46,67,.28),0 8px 20px rgba(31,46,67,.18);
-    position:relative;
-  }
-  .phone-screen{
-    width:100%;height:100%;
-    background:#fff;border-radius:36px;overflow:hidden;
-    display:flex;flex-direction:column;
-  }
-  .phone-notch{
-    position:absolute;top:12px;left:50%;transform:translateX(-50%);
-    width:150px;height:26px;background:#141b24;border-radius:0 0 16px 16px;z-index:3;
-  }
-  .phone-head{
-    padding:34px 0 18px;
-    display:flex;flex-direction:column;align-items:center;gap:8px;
-    border-bottom:1px solid #eef1f4;
-  }
-  .phone-head .logo-icon{height:48px;width:auto}
-  .phone-head .p-name{font-size:17px;font-weight:800;color:var(--navy)}
-  .phone-chat{
-    flex:1;background:#aebfd0;
-    padding:26px 20px;display:flex;flex-direction:column;gap:16px;
-  }
-  .bubble{max-width:82%;font-size:15px;line-height:1.55;border-radius:16px;padding:12px 16px}
-  .bubble.user{
-    align-self:flex-end;background:#cbe8c9;color:#2a3b2f;border-bottom-right-radius:5px;
-  }
-  .bubble-row{display:flex;gap:9px;align-items:flex-end}
-  .bubble-row .mini-ico{height:30px;width:auto;flex:none;margin-bottom:2px}
-  .bubble.bot{
-    background:#fff;color:var(--ink);border-bottom-left-radius:5px;
-    box-shadow:0 1px 3px rgba(0,0,0,.06);
-  }
-  .phone-input{padding:16px 20px 24px;background:#aebfd0}
-  .phone-input .field{
-    width:100%;background:var(--navy-btn);color:#fff;
-    text-align:center;font-weight:700;font-size:15px;
-    padding:16px;border-radius:999px;
-  }
+/* status */
+.queue{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+.qitem{
+  display:flex;align-items:center;gap:12px;background:var(--card);
+  border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:13px;
+}
+.qitem img{width:42px;height:42px;object-fit:cover;border-radius:7px;border:1px solid var(--line)}
+.spin{width:16px;height:16px;border:2px solid #cfd6e4;border-top-color:var(--navy);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.qitem .st{margin-left:auto;color:var(--muted)}
+.qitem.err{border-color:#e7b4ae;background:#fdf3f1}
+.qitem.err .st{color:var(--hanko)}
 
-  /* hero decorations */
-  .deco{position:absolute;inset:0;z-index:1;pointer-events:none}
-  .deco svg{position:absolute}
-  .d-net{top:150px;left:20px;width:290px;height:320px}
-  .d-cross1{top:470px;left:150px;width:120px;height:120px}
-  .d-cross2{top:720px;left:170px;width:78px;height:78px}
-  .d-hex-r{top:70px;right:40px;width:120px;height:120px}
-  .d-hex-r2{top:250px;right:200px;width:74px;height:74px}
-  .d-cross-r{top:430px;right:120px;width:96px;height:96px}
-  .d-dots{bottom:40px;left:24px;width:180px;height:120px}
-  .d-spark{bottom:70px;right:60px;width:70px;height:70px}
-  .blob{position:absolute;border-radius:44px;background:rgba(150,196,225,.16);z-index:1}
-  .blob1{width:230px;height:230px;top:110px;left:150px;transform:rotate(20deg)}
-  .blob2{width:150px;height:150px;top:560px;left:120px;transform:rotate(15deg);background:rgba(154,205,164,.18)}
+/* result card */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  margin-top:18px;overflow:hidden;box-shadow:0 1px 2px rgba(20,30,60,.04);
+  animation:rise .3s ease both;
+}
+.combine-bar{
+  display:flex;align-items:center;gap:12px;background:#eef2fb;border:1px solid #c9d7f2;
+  border-radius:12px;padding:12px 16px;margin-top:16px;font-size:13px;color:var(--navy-d);
+}
+.combine-bar span{flex:1}
+.combine-bar .btn{white-space:nowrap;padding:9px 16px;font-size:13px}
+tr.hdrrow td{background:#eef2fb;border-top:2px solid var(--navy);border-bottom:1px solid var(--line);padding:6px 6px}
+tr.hdrrow input{font-weight:700;color:var(--navy-d);background:transparent;border:0;width:100%;font-size:12.5px}
+tr.hdrrow input:focus{outline:2px solid #bcd0f5;border-radius:6px}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.chead{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.chead .ven{font-weight:700;font-size:15px;flex:1;min-width:0}
+.chead .ven span{display:block;color:var(--muted);font-weight:400;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chead .cardthumb{width:40px;height:40px;object-fit:cover;border-radius:8px;border:1px solid var(--line);flex:none}
+.badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.badge.ok{color:var(--ok);background:var(--ok-bg)}
+.badge.warn{color:var(--warn);background:var(--warn-bg)}
+.x-del{appearance:none;border:0;background:none;cursor:pointer;color:var(--muted);font-size:18px;padding:4px 6px;border-radius:8px;line-height:1}
+.x-del:hover{background:var(--grey);color:var(--hanko)}
 
-  /* ---------- Features ---------- */
-  .features{
-    background:linear-gradient(180deg,var(--hero-b) 0%,#f4f8f5 100%);
-    padding:0 0 90px;
-  }
-  .features-inner{
-    max-width:1240px;margin:0 auto;padding:0 40px;
-    display:grid;grid-template-columns:repeat(4,1fr);gap:26px;
-    transform:translateY(-40px);
-  }
-  .card{
-    background:var(--card-bg);border-radius:20px;
-    padding:38px 26px 32px;text-align:center;
-    box-shadow:0 12px 30px rgba(45,70,100,.08);
-  }
-  .card .ico-wrap{
-    width:70px;height:70px;margin:0 auto 20px;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .card .ico-wrap svg{width:64px;height:64px}
-  .card h3{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:14px}
-  .card p{font-size:15px;color:var(--gray);line-height:1.75}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.fld{display:flex;flex-direction:column;gap:3px;padding:6px 0}
+.fld label{font-size:11px;color:var(--muted);font-weight:500}
+.fld input{
+  font-family:inherit;font-size:13px;color:var(--ink);border:1px solid var(--line);
+  border-radius:8px;padding:7px 9px;background:#fff;width:100%;
+}
+.fld input:focus{outline:2px solid #bcd0f5;border-color:var(--navy)}
 
-  /* ---------- Responsive ---------- */
-  @media (max-width:980px){
-    .hero-inner{grid-template-columns:1fr;justify-items:center;text-align:center}
-    .hero h1{font-size:44px}
-    .hero .lead{font-size:19px}
-    .phone{margin-top:20px}
-    .features-inner{grid-template-columns:repeat(2,1fr)}
-  }
-  @media (max-width:760px){
-    .nav{padding:14px 20px}
-    .nav-links{gap:16px}
-    .nav-links a:not(.line-btn){display:none}
-    .brand .brand-name{font-size:20px}
-    .hero{padding:60px 0 90px}
-    .hero-inner{padding:0 22px}
-    .hero h1{font-size:34px}
-    .cta{font-size:20px;padding:18px 34px}
-    .features-inner{padding:0 22px}
-  }
-  @media (max-width:480px){
-    .features-inner{grid-template-columns:1fr}
-    .phone{width:280px;height:560px}
-  }
+/* items table */
+.tbl{width:100%;overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:560px}
+th{background:var(--navy);color:#fff;font-weight:700;font-size:12px;padding:8px 6px;text-align:center}
+td{border-bottom:1px solid var(--line);padding:3px 4px;vertical-align:middle}
+td.no{text-align:center;color:var(--muted);width:34px}
+tr.unc td{background:#fcf3da50}
+td.numflag{background:#fcf3da50}
+.flag{display:inline-block;color:var(--warn);font-weight:700;font-size:10.5px;margin-left:4px;white-space:nowrap}
+td.amt{position:relative}
+td.amt .flag{display:block;margin:2px 0 0;text-align:right}
+.flag.hintflag{color:var(--navy);font-weight:500}
+.learnbar{margin-top:16px;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.9}
+.learnbar b{color:var(--navy-d)}
+.learnbar button{appearance:none;border:0;background:none;color:var(--navy);font-size:11.5px;font-family:inherit;cursor:pointer;padding:2px 6px;border-radius:6px}
+.learnbar button:hover{background:var(--grey);text-decoration:underline}
+td input{
+  font-family:inherit;font-size:13px;border:1px solid transparent;border-radius:6px;
+  padding:6px 7px;width:100%;background:transparent;color:inherit;
+}
+td input:hover{background:#f7f8fb}
+td input:focus{outline:2px solid #bcd0f5;background:#fff}
+td.r input{text-align:right;font-family:"Roboto Mono",monospace}
+td.c input{text-align:center}
+td.amt{text-align:right;font-family:"Roboto Mono",monospace;padding-right:10px;white-space:nowrap}
+.addrow{appearance:none;border:0;background:none;color:var(--navy);font-weight:700;font-size:12px;cursor:pointer;padding:9px 16px}
+.addrow:hover{text-decoration:underline}
 
-  /* ---------- Section shared ---------- */
-  .sec{max-width:1240px;margin:0 auto;padding:0 40px}
-  .sec-head{text-align:center;margin-bottom:44px}
-  .eyebrow{
-    display:inline-block;font-size:14px;font-weight:800;letter-spacing:.14em;
-    color:var(--green);margin-bottom:12px;
-  }
-  .sec-title{font-size:36px;font-weight:800;color:var(--navy);line-height:1.35}
-  .sec-lead{font-size:17px;color:var(--gray);margin-top:14px}
+/* 利益上乗せ */
+.markup-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--line);background:#fbfcfe}
+.mk-label{font-size:12px;font-weight:700;color:var(--muted)}
+.mkbtn{appearance:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:background .12s,border-color .12s}
+.mkbtn:hover{border-color:var(--navy)}
+.mkbtn.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.mk-custom{display:inline-flex;align-items:center;gap:3px;font-size:12.5px;color:var(--muted)}
+.mk-custom input{width:52px;font-family:"Roboto Mono",monospace;font-size:13px;text-align:right;border:1px solid var(--line);border-radius:8px;padding:5px 7px}
+.mk-custom input:focus{outline:2px solid #bcd0f5;border-color:var(--navy)}
+.mk-note{flex-basis:100%;font-size:11px;color:var(--muted)}
+.totals .row.mk .v{color:var(--ok)}
+.totals .grand.mk .v{color:var(--ok)}
+.recon.mkinfo{color:var(--muted)}
 
-  /* ---------- Symptoms ---------- */
-  .symptoms{background:#fff;padding:84px 0}
-  .symptom-grid{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:22px;
-  }
-  .symptom{
-    display:flex;flex-direction:column;align-items:center;gap:16px;
-    background:#f6f9fb;border:1px solid #eef2f6;border-radius:18px;
-    padding:30px 18px;text-align:center;
-    transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease;
-  }
-  .symptom:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(45,70,100,.10);border-color:#dfeaf2}
-  .symptom .s-ico{
-    width:60px;height:60px;border-radius:50%;
-    background:#e7f0f8;display:flex;align-items:center;justify-content:center;
-  }
-  .symptom .s-ico svg{width:34px;height:34px}
-  .symptom .s-name{font-size:17px;font-weight:800;color:var(--navy)}
-  .symptom .s-sub{font-size:13px;color:var(--gray)}
-  .sec-cta{text-align:center;margin-top:48px}
-  .btn-outline{
-    display:inline-flex;align-items:center;gap:10px;
-    border:2px solid var(--green);color:var(--green);
-    font-weight:800;font-size:17px;padding:15px 36px;border-radius:999px;
-    background:#fff;transition:background .15s ease,color .15s ease;
-  }
-  .btn-outline:hover{background:var(--green);color:#fff}
+.totals{padding:12px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.totals .row{display:flex;gap:16px;font-size:13px;color:var(--muted)}
+.totals .row .v{font-family:"Roboto Mono",monospace;color:var(--ink);min-width:96px;text-align:right}
+.totals .grand{font-size:16px;font-weight:900;color:var(--ink)}
+.totals .grand .v{color:var(--navy)}
+.recon{font-size:12px;margin-top:4px}
+.recon.ok{color:var(--ok)}
+.recon.warn{color:var(--warn)}
 
-  /* ---------- Columns ---------- */
-  .columns{background:linear-gradient(180deg,#f4f8f5 0%,#eef4f9 100%);padding:84px 0}
-  .col-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-  .col-card{
-    background:#fff;border-radius:18px;overflow:hidden;
-    box-shadow:0 12px 30px rgba(45,70,100,.08);
-    display:flex;flex-direction:column;
-    transition:transform .15s ease,box-shadow .15s ease;
-  }
-  .col-card:hover{transform:translateY(-4px);box-shadow:0 18px 38px rgba(45,70,100,.14)}
-  .col-thumb{height:170px;overflow:hidden}
-  .col-thumb svg{width:100%;height:100%;display:block}
-  .col-body{padding:24px 24px 26px;display:flex;flex-direction:column;flex:1}
-  .col-tag{
-    align-self:flex-start;font-size:12px;font-weight:800;letter-spacing:.04em;
-    color:var(--green);background:#e7f6ec;padding:5px 12px;border-radius:999px;margin-bottom:14px;
-  }
-  .col-card h3{font-size:19px;font-weight:800;color:var(--navy);line-height:1.5;margin-bottom:10px}
-  .col-card p{font-size:14px;color:var(--gray);line-height:1.7;flex:1}
-  .col-date{font-size:13px;color:#9aa8b6;margin-top:16px}
+/* action bar */
+.bar{
+  position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.92);
+  backdrop-filter:blur(8px);border-top:1px solid var(--line);
+  padding:12px 18px;display:flex;align-items:center;gap:14px;justify-content:center;
+  transform:translateY(110%);transition:transform .25s;
+}
+.bar.show{transform:none}
+.bar .cnt{font-size:13px;color:var(--muted)}
+.bar .btn{font-size:15px;padding:12px 26px}
 
-  /* ---------- Footer ---------- */
-  footer{background:var(--navy-deep);color:#cdd7e2;padding:56px 0 30px}
-  .foot-inner{max-width:1240px;margin:0 auto;padding:0 40px;
-    display:flex;justify-content:space-between;flex-wrap:wrap;gap:32px}
-  .foot-brand{display:flex;flex-direction:column;gap:14px;max-width:340px}
-  .foot-brand .fb-row{display:flex;align-items:center;gap:12px}
-  .foot-brand .fb-row img{height:40px;width:auto}
-  .foot-brand .fb-name{font-size:20px;font-weight:800;color:#fff}
-  .foot-brand p{font-size:14px;line-height:1.7;color:#9fb0c1}
-  .foot-links{display:flex;gap:56px;flex-wrap:wrap}
-  .foot-col h4{font-size:14px;font-weight:800;color:#fff;margin-bottom:16px;letter-spacing:.04em}
-  .foot-col a{display:block;font-size:14px;color:#9fb0c1;margin-bottom:11px}
-  .foot-col a:hover{color:#fff}
-  .foot-bottom{
-    max-width:1240px;margin:38px auto 0;padding:22px 40px 0;
-    border-top:1px solid rgba(255,255,255,.12);
-    font-size:13px;color:#8194a6;text-align:center;
-  }
-
-  @media (max-width:980px){
-    .symptom-grid{grid-template-columns:repeat(2,1fr)}
-    .col-grid{grid-template-columns:1fr;max-width:520px;margin:0 auto}
-    .sec-title{font-size:30px}
-  }
-  @media (max-width:760px){
-    .symptoms,.columns{padding:60px 0}
-    .sec{padding:0 22px}
-    .foot-inner{padding:0 22px;flex-direction:column}
-    .foot-bottom{padding:22px 22px 0}
-  }
-  @media (max-width:480px){
-    .symptom-grid{grid-template-columns:repeat(2,1fr);gap:14px}
-  }
+footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:30px;line-height:1.7}
+.toast{
+  position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:9;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (max-width:560px){.meta{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <div class="mark">見積</div>
+    <h1>手書き請求書 → Excel</h1>
+    <p>手書きの請求書を撮って読み込むだけ。整ったExcelで書き出します。</p>
+  </header>
 
-<!-- ===== Header ===== -->
-<header>
-  <nav class="nav">
-    <a class="brand" href="/">
-      <img decoding="async" fetchpriority="high" class="logo-icon" src="assets/logo-icon.png" width="203" height="180" alt="みんなの薬剤師">
-      <span class="brand-name">みんなの薬剤師</span>
-    </a>
-    <div class="nav-links">
-      <a href="#symptoms">症状から探す</a>
-      <a href="/medicines.html">市販薬を探す</a>
-      <a href="/column.html">コラム</a>
-      <a href="/company.html">会社情報</a>
+  <div class="drop" id="drop">
+    <p class="big">画像・PDFをここにドラッグ＆ドロップ</p>
+    <p class="sub">JPEG（.jpg/.jpeg）・PNG・PDF / 複数枚OK（1ファイル＝1請求書として処理します）</p>
+    <div class="btn-row">
+      <button class="btn primary" id="pick">ファイルを選ぶ</button>
+      <button class="btn ghost" id="cam">写真を撮る</button>
     </div>
-  </nav>
-</header>
-
-<!-- ===== Hero ===== -->
-<section class="hero">
-  <!-- decorations -->
-  <div class="deco" aria-hidden="true">
-    <div class="blob blob1"></div>
-    <div class="blob blob2"></div>
-    <!-- molecule network -->
-    <svg class="d-net" viewBox="0 0 200 220">
-      <g fill="none" stroke="#b8cfe0" stroke-width="2">
-        <line x1="60" y1="120" x2="30" y2="40"/>
-        <line x1="60" y1="120" x2="130" y2="35"/>
-        <line x1="60" y1="120" x2="70" y2="200"/>
-        <line x1="130" y1="35" x2="160" y2="90"/>
-      </g>
-      <circle cx="60" cy="120" r="26" fill="#eef4f9" stroke="#b8cfe0" stroke-width="2"/>
-      <circle cx="30" cy="40" r="11" fill="#fff" stroke="#8fb2d6" stroke-width="2.5"/>
-      <circle cx="130" cy="35" r="12" fill="#f2a24b"/>
-      <circle cx="160" cy="90" r="10" fill="#fff" stroke="#8fb2d6" stroke-width="2.5"/>
-      <circle cx="70" cy="200" r="10" fill="#fff" stroke="#8fb2d6" stroke-width="2.5"/>
-      <circle cx="130" cy="35" r="5.5" fill="#fff" opacity=".85"/>
-    </svg>
-    <!-- crosses -->
-    <svg class="d-cross1" viewBox="0 0 60 60"><path d="M22 4h16v18h18v16H38v18H22V38H4V22h18z" fill="#9dc0a5" opacity=".55"/></svg>
-    <svg class="d-cross2" viewBox="0 0 60 60"><path d="M22 4h16v18h18v16H38v18H22V38H4V22h18z" fill="#9bbce4" opacity=".55"/></svg>
-    <svg class="d-cross-r" viewBox="0 0 60 60"><path d="M22 4h16v18h18v16H38v18H22V38H4V22h18z" fill="#9bbce4" opacity=".5"/></svg>
-    <!-- hexagons -->
-    <svg class="d-hex-r" viewBox="0 0 100 100"><path d="M50 6l38 22v44L50 94 12 72V28z" fill="none" stroke="#bcd3e6" stroke-width="2.5"/></svg>
-    <svg class="d-hex-r2" viewBox="0 0 100 100"><path d="M50 6l38 22v44L50 94 12 72V28z" fill="none" stroke="#c3ddc9" stroke-width="2.5"/></svg>
-    <!-- dots -->
-    <svg class="d-dots" viewBox="0 0 180 120">
-      <g fill="#c3d6e6">
-        <circle cx="10" cy="10" r="4"/><circle cx="40" cy="10" r="4"/><circle cx="70" cy="10" r="4"/><circle cx="100" cy="10" r="4"/>
-        <circle cx="10" cy="40" r="4"/><circle cx="40" cy="40" r="4"/><circle cx="70" cy="40" r="4"/>
-        <circle cx="10" cy="70" r="4"/><circle cx="40" cy="70" r="4"/>
-        <circle cx="10" cy="100" r="4"/>
-      </g>
-    </svg>
-    <!-- sparkle -->
-    <svg class="d-spark" viewBox="0 0 60 60"><path d="M30 4c2 14 10 22 24 26-14 4-22 12-24 26-2-14-10-22-24-26 14-4 22-12 24-26z" fill="#a7cbe6" opacity=".6"/></svg>
+    <input id="file" type="file" accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,application/pdf,.jpg,.jpeg,.png,.heic,.heif,.pdf" multiple hidden>
+    <input id="capture" type="file" accept="image/*" capture="environment" hidden>
   </div>
+  <p class="hint">読み取りは自動。金額は手書きの合計と自動照合し、内容はその場で直せます。</p>
 
-  <div class="hero-inner">
-    <div class="hero-copy">
-      <h1>あなたのスマホが、<br>一番身近な薬剤師に。</h1>
-      <p class="lead">LINEでサクッと市販薬相談。<br>専門家が匿名・無料でお答えします。</p>
-      <a class="cta" href="https://lin.ee/yQA2ON5" target="_blank" rel="noopener">
-        <span class="line-circle"><span>LINE</span></span>
-        相談開始
-      </a>
-    </div>
+  <div class="queue" id="queue"></div>
+  <div id="combineBanner"></div>
+  <div id="results"></div>
 
-    <!-- phone mockup -->
-    <div class="phone">
-      <div class="phone-notch"></div>
-      <div class="phone-screen">
-        <div class="phone-head">
-          <img loading="lazy" decoding="async" class="logo-icon" src="assets/logo-icon.png" width="203" height="180" alt="みんなの薬剤師">
-          <div class="p-name">みんなの薬剤師</div>
-        </div>
-        <div class="phone-chat">
-          <div class="bubble user">頭痛薬、どれが効く？</div>
-          <div class="bubble-row">
-            <img loading="lazy" decoding="async" class="mini-ico" src="assets/logo-icon.png" width="203" height="180" alt="">
-            <div class="bubble bot">こんにちは。痛みの種類や、お好みの成分はありますか？例えばイブプロフェン系など。</div>
-          </div>
-        </div>
-        <div class="phone-input">
-          <a class="field" href="https://lin.ee/yQA2ON5" target="_blank" rel="noopener" style="display:block;text-decoration:none">チャットで相談</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+  <div class="learnbar" id="learnbar"></div>
 
-<!-- ===== Features ===== -->
-<section class="features">
-  <div class="features-inner">
+  <footer>
+    画像の読み取りにAIを使用します。書き出しはお使いの端末内で生成され、Excelとして保存されます。<br>
+    読み取り結果は必ず原本と照合してください。
+  </footer>
+</div>
 
-    <div class="card">
-      <div class="ico-wrap">
-        <svg viewBox="0 0 64 64" fill="none">
-          <rect x="8" y="16" width="40" height="26" rx="4" fill="#dce9f3"/>
-          <rect x="8" y="22" width="40" height="5" fill="#2f6ea5"/>
-          <circle cx="42" cy="42" r="13" fill="#fff" stroke="#2f6ea5" stroke-width="3"/>
-          <rect x="36" y="36" width="12" height="7" rx="3.5" transform="rotate(45 42 42)" fill="#5b93c7"/>
-          <line x1="51" y1="51" x2="59" y2="59" stroke="#2f6ea5" stroke-width="4" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h3>市販薬選びをサポート</h3>
-      <p>気になる症状に、どの市販薬が最適か、プロの視点でアドバイスします。</p>
-    </div>
+<div class="bar" id="bar">
+  <span class="cnt" id="cnt"></span>
+  <button class="btn primary" id="export">Excelで書き出す</button>
+</div>
+<div class="toast" id="toast"></div>
 
-    <div class="card">
-      <div class="ico-wrap">
-        <svg viewBox="0 0 64 64" fill="none">
-          <rect x="6" y="12" width="36" height="26" rx="7" fill="#2f6ea5"/>
-          <path d="M16 38l-4 8 11-6z" fill="#2f6ea5"/>
-          <rect x="26" y="24" width="32" height="24" rx="7" fill="#8fb9de"/>
-          <path d="M48 48l4 8-11-6z" fill="#8fb9de"/>
-          <g fill="#fff"><circle cx="35" cy="36" r="2.3"/><circle cx="42" cy="36" r="2.3"/><circle cx="49" cy="36" r="2.3"/></g>
-        </svg>
-      </div>
-      <h3>専門家に直接相談</h3>
-      <p>薬剤師や看護師に、リアルタイムで直接相談できます。</p>
-    </div>
+<script>
+/* ============================================================
+   APIエンドポイント
+   - このチャット内プレビュー / テスト: 直接Anthropicを使用（キー不要）
+   - Vercel等で一般公開する場合: "/api/extract" に変更し、
+     同梱の api/extract.js を配置（APIキーは環境変数に置く）
+   ============================================================ */
+const API_ENDPOINT = "/api/extract";
 
-    <div class="card">
-      <div class="ico-wrap">
-        <svg viewBox="0 0 64 64" fill="none">
-          <rect x="18" y="6" width="28" height="52" rx="6" fill="#dce9f3" stroke="#2f6ea5" stroke-width="3"/>
-          <rect x="24" y="16" width="20" height="16" rx="5" fill="#2f6ea5"/>
-          <path d="M30 32l-3 6 8-4z" fill="#2f6ea5"/>
-          <g fill="#fff"><circle cx="30" cy="24" r="1.9"/><circle cx="34" cy="24" r="1.9"/><circle cx="38" cy="24" r="1.9"/></g>
-          <line x1="28" y1="52" x2="36" y2="52" stroke="#2f6ea5" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h3>スマホで完結</h3>
-      <p>場所を選ばず、スマホ一台で相談から回答まで完結します。</p>
-    </div>
+/* ============================================================
+   学習ストア: 業者ごとの「品名・単位・単価」の実績を端末内に保存し、
+   次回の読み取り時にAIへヒントとして渡す。データはこの端末のブラウザ内のみ。
+   ============================================================ */
+const LS_KEY='tegaki_vendor_profiles_v1';
+function loadStore(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; }
+}
+function saveStore(s){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(s)); }catch(e){ console.warn('保存失敗',e); }
+}
+function vendorKey(d){
+  const v=(d.vendor&&d.vendor[0])?String(d.vendor[0]):'';
+  return v.replace(/[\s　（）()]/g,'').trim().slice(0,40);
+}
+// 確定した内容（＝Excel書き出し時点）を業者ごとに学習
+function learnFromEstimates(){
+  const store=loadStore();
+  let learned=0;
+  estimates.forEach(e=>{
+    const d=e.data;
+    const v=vendorKey(d);
+    if(!v) return;
+    const prof=store[v]||{items:{},updated:0};
+    d.items.forEach(it=>{
+      if(it.isHeader) return;
+      const nm=(it.name||'').trim();
+      if(!nm||nm.length>40) return;
+      const rec=prof.items[nm]||{unit:'',price:null,count:0};
+      rec.count++;
+      if(it.unit) rec.unit=it.unit;
+      if(it.price!=null) rec.price=it.price; // 上乗せ前の元単価を学習
+      rec.ts=Date.now(); // 端末間マージ用の更新時刻
+      prof.items[nm]=rec;
+      learned++;
+    });
+    prof.updated=Date.now();
+    store[v]=prof;
+  });
+  if(learned) saveStore(store);
+  return learned;
+}
+// AIに渡す実績リストを生成
+function buildGlossaryText(){
+  const store=loadStore();
+  const vendors=Object.keys(store).sort((a,b)=>(store[b].updated||0)-(store[a].updated||0));
+  if(!vendors.length) return '';
+  const out=[];
+  for(const v of vendors.slice(0,8)){
+    const items=Object.entries(store[v].items||{}).sort((a,b)=>b[1].count-a[1].count).slice(0,25);
+    if(!items.length) continue;
+    out.push('■ '+v);
+    for(const [nm,rec] of items){
+      const bits=[];
+      if(rec.unit) bits.push('単位'+rec.unit);
+      if(rec.price!=null) bits.push('単価'+rec.price);
+      out.push('- '+nm+(bits.length?'（'+bits.join('・')+'）':''));
+    }
+  }
+  let text=out.join('\n');
+  if(text.length>3000) text=text.slice(0,3000);
+  return text;
+}
+function promptWithGlossary(){
+  const g=buildGlossaryText();
+  if(!g) return PROMPT;
+  return PROMPT+`
 
-    <div class="card">
-      <div class="ico-wrap">
-        <svg viewBox="0 0 64 64" fill="none">
-          <path d="M32 6l22 8v16c0 15-9 23-22 28-13-5-22-13-22-28V14z" fill="#dcefe0" stroke="#5aa96a" stroke-width="3"/>
-          <circle cx="32" cy="27" r="7" fill="#5aa96a"/>
-          <path d="M20 46c1.5-8 7-12 12-12s10.5 4 12 12z" fill="#5aa96a"/>
-        </svg>
-      </div>
-      <h3>匿名で安心</h3>
-      <p>本名を明かさず、安心してご相談いただけます。</p>
-    </div>
+【過去に確定済みの業者別 品名・単位・単価の実績（重要な参考情報）】
+同じ業者の書類なら、下記と同じ品名表記・同じ単価になっている可能性が高いです。崩し字が読みにくい箇所は、下記のリストに一致する品名がないか必ず照合してください。ただし原本と明らかに違う場合は原本を優先してください。
+${g}`;
+}
+// 読み取り結果を過去実績と突き合わせ、単価違いを要確認にする
+function applyLearning(d){
+  const store=loadStore();
+  const prof=store[vendorKey(d)];
+  if(!prof||!prof.items) return;
+  d.items.forEach(it=>{
+    if(it.isHeader) return;
+    const rec=prof.items[(it.name||'').trim()];
+    if(!rec) return;
+    if(rec.price!=null&&it.price!=null&&it.price!==rec.price){
+      it.number_uncertain=true;
+      it.learn_hint='前回単価 '+Number(rec.price).toLocaleString('ja-JP');
+    }
+  });
+}
+function learnStats(){
+  const store=loadStore();
+  const vendors=Object.keys(store);
+  let items=0;
+  vendors.forEach(v=>{items+=Object.keys(store[v].items||{}).length});
+  return {vendors:vendors.length, items};
+}
 
-  </div>
-</section>
+/* ---------- 端末間の共有（学習データを自動で同期） ---------- */
+// 共有キー（サーバーの SYNC_PASSCODE と同じ値。合言葉入力を廃止し自動で共有する）
+const SYNC_KEY='Lino0810';
+const getPass=()=>SYNC_KEY;
 
-<!-- ===== Symptoms ===== -->
-<section class="symptoms" id="symptoms">
-  <div class="sec">
-    <div class="sec-head">
-      <span class="eyebrow">SYMPTOMS</span>
-      <h2 class="sec-title">症状からお薬を探す</h2>
-      <p class="sec-lead">気になる症状を選ぶと、市販薬選びのポイントが分かります。</p>
-    </div>
-    <div class="symptom-grid">
-      <a class="symptom" href="/headache.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 30v-4a10 10 0 1 1 14 0v4"/><path d="M13 30h14"/><path d="M20 6V3M30 10l2-2M10 10 8 8"/></svg></span>
-        <span class="s-name">頭痛</span>
-        <span class="s-sub">ズキズキ・重い痛みに</span>
-      </a>
-      <a class="symptom" href="/cold.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="17" y="6" width="6" height="20" rx="3"/><circle cx="20" cy="30" r="5"/><path d="M20 21v7"/><path d="M27 10h4M27 15h4"/></svg></span>
-        <span class="s-name">かぜ・発熱</span>
-        <span class="s-sub">熱っぽさ・寒気に</span>
-      </a>
-      <a class="symptom" href="/throat.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 12a6 6 0 0 1 12 0c0 5-4 6-4 10a2 2 0 0 1-4 0c0-4-4-5-4-10Z"/><path d="M30 16h4M29 22l4 1M30 28h3"/></svg></span>
-        <span class="s-name">せき・のどの痛み</span>
-        <span class="s-sub">せき・いがらっぽさに</span>
-      </a>
-      <a class="symptom" href="/allergy.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="20" cy="20" r="4"/><path d="M20 12a4 4 0 0 1 0 8M20 28a4 4 0 0 1 0-8M12 20a4 4 0 0 1 8 0M28 20a4 4 0 0 1-8 0"/></svg></span>
-        <span class="s-name">鼻炎・花粉症</span>
-        <span class="s-sub">鼻水・くしゃみに</span>
-      </a>
-      <a class="symptom" href="/stomach.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 8c0 3 3 3 3 8 0 7-5 12-10 12S9 24 12 20c2-3 5-2 5-6 0-3-2-4-2-6"/></svg></span>
-        <span class="s-name">胃の不調・胃痛</span>
-        <span class="s-sub">胃もたれ・胸やけに</span>
-      </a>
-      <a class="symptom" href="/constipation.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 26c0-8 6-14 12-12M14 14c6-2 10 3 10 8 0 4-3 7-7 7"/><circle cx="26" cy="24" r="4"/></svg></span>
-        <span class="s-name">便秘</span>
-        <span class="s-sub">お通じの悩みに</span>
-      </a>
-      <a class="symptom" href="/diarrhea.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7c-6 8-9 13-9 18a9 9 0 0 0 18 0c0-5-3-10-9-18z"/><path d="M15 25a5 5 0 0 0 10 0"/></svg></span>
-        <span class="s-name">下痢</span>
-        <span class="s-sub">おなかの不調に</span>
-      </a>
-      <a class="symptom" href="/fatigue.html">
-        <span class="s-ico"><svg viewBox="0 0 40 40" fill="none" stroke="#2f6ea5" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14h7l-7 8h7"/><path d="M22 21h6l-6 6h6"/><path d="M28 9h4l-4 5h4"/></svg></span>
-        <span class="s-name">疲れ・だるさ</span>
-        <span class="s-sub">疲労感・元気が出ない時に</span>
-      </a>
-    </div>
-  </div>
-</section>
+// 2つの学習ストアを統合（サーバー側と同じルール: 品名ごとに新しい方を採用）
+function mergeStores(a,b){
+  const out={};
+  const vendors=new Set([...Object.keys(a||{}),...Object.keys(b||{})]);
+  for(const v of vendors){
+    const pa=(a&&a[v])||{items:{},updated:0};
+    const pb=(b&&b[v])||{items:{},updated:0};
+    const items={};
+    const names=new Set([...Object.keys(pa.items||{}),...Object.keys(pb.items||{})]);
+    for(const nm of names){
+      const ia=(pa.items||{})[nm], ib=(pb.items||{})[nm];
+      if(!ia){ items[nm]=ib; continue; }
+      if(!ib){ items[nm]=ia; continue; }
+      const ta=ia.ts||0, tb=ib.ts||0;
+      const w=tb>ta?ib:ia;
+      items[nm]={unit:w.unit||ia.unit||ib.unit||'', price:w.price!=null?w.price:(ia.price!=null?ia.price:ib.price), count:(ia.count||0)+(ib.count||0), ts:Math.max(ta,tb)};
+    }
+    out[v]={items,updated:Math.max(pa.updated||0,pb.updated||0)};
+  }
+  return out;
+}
 
-<!-- ===== Columns ===== -->
-<section class="columns" id="columns">
-  <div class="sec">
-    <div class="sec-head">
-      <span class="eyebrow">COLUMN</span>
-      <h2 class="sec-title">お薬コラム</h2>
-      <p class="sec-lead">薬剤師・看護師が、市販薬とセルフケアの知識を分かりやすくお届けします。</p>
-    </div>
-    <div class="col-grid">
-      <a class="col-card" href="/column-headache-types.html">
-        <div class="col-thumb"><svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg">
-<rect width="320" height="170" fill="#e9f4ee"/>
-<circle cx="160" cy="88" r="66" fill="#d7ecdf"/>
-<path d="M132 56 h46 l-6 78 a5 5 0 0 1-5 4.5 h-24 a5 5 0 0 1-5-4.5 z" fill="#fff" stroke="#a9d3ba" stroke-width="3"/>
-<path d="M136 92 h38 l-4 42 a5 5 0 0 1-5 4.5 h-20 a5 5 0 0 1-5-4.5 z" fill="#bfe3f1"/>
-<g transform="rotate(-24 206 74)">
-<rect x="184" y="63" width="46" height="23" rx="11.5" fill="#fff" stroke="#5aa96a" stroke-width="3"/>
-<path d="M184 74.5 a11.5 11.5 0 0 1 11.5-11.5 h12 v23 h-12 A11.5 11.5 0 0 1 184 74.5z" fill="#5aa96a"/>
-</g>
-<circle cx="212" cy="115" r="16" fill="#fff" stroke="#f2a24b" stroke-width="3"/>
-<line x1="212" y1="101" x2="212" y2="129" stroke="#f2a24b" stroke-width="2.6"/>
-</svg></div>
-        <div class="col-body">
-          <span class="col-tag">頭痛</span>
-          <h3>頭痛のタイプ別・市販薬の選び方</h3>
-          <p>緊張型・片頭痛など、頭痛のタイプごとに向いている市販薬のポイントを解説します。</p>
-        </div>
-      </a>
-      <a class="col-card" href="/column-allergy-drowsy.html">
-        <div class="col-thumb"><svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg">
-<rect width="320" height="170" fill="#e7f0f9"/>
-<circle cx="158" cy="88" r="66" fill="#d5e6f6"/>
-<g transform="translate(150 90)" fill="#8fbfe0">
-<ellipse cx="0" cy="-30" rx="13" ry="22"/><ellipse cx="0" cy="30" rx="13" ry="22"/>
-<ellipse cx="-30" cy="0" rx="22" ry="13"/><ellipse cx="30" cy="0" rx="22" ry="13"/>
-<ellipse cx="-21" cy="-21" rx="20" ry="12" transform="rotate(45 -21 -21)"/>
-<ellipse cx="21" cy="21" rx="20" ry="12" transform="rotate(45 21 21)"/>
-<ellipse cx="21" cy="-21" rx="20" ry="12" transform="rotate(-45 21 -21)"/>
-<ellipse cx="-21" cy="21" rx="20" ry="12" transform="rotate(-45 -21 21)"/>
-</g>
-<circle cx="150" cy="90" r="15" fill="#f2c14b"/>
-<g fill="#f2c14b"><circle cx="212" cy="52" r="4.5"/><circle cx="228" cy="72" r="3.2"/><circle cx="216" cy="92" r="3.6"/><circle cx="234" cy="52" r="3"/></g>
-</svg></div>
-        <div class="col-body">
-          <span class="col-tag">花粉症</span>
-          <h3>花粉症の薬、眠くなりにくいタイプは？</h3>
-          <p>抗ヒスタミン薬の眠気の違いや、症状に合わせた選び方をまとめました。</p>
-        </div>
-      </a>
-      <a class="col-card" href="/column-heartburn.html">
-        <div class="col-thumb"><svg viewBox="0 0 320 170" xmlns="http://www.w3.org/2000/svg">
-<rect width="320" height="170" fill="#eef5ef"/>
-<circle cx="160" cy="90" r="64" fill="#dcecdf"/>
-<g fill="none" stroke="#a9d3ba" stroke-width="3.2" stroke-linecap="round">
-<path d="M148 66 q-6-9 0-18"/><path d="M162 66 q-6-9 0-18"/>
-</g>
-<path d="M128 78 h50 v34 a18 18 0 0 1-18 18 h-14 a18 18 0 0 1-18-18 z" fill="#fff" stroke="#8bbf9b" stroke-width="3"/>
-<rect x="128" y="86" width="50" height="9" fill="#bfe0cc"/>
-<path d="M178 86 a13 13 0 0 1 0 26" fill="none" stroke="#8bbf9b" stroke-width="3"/>
-<path d="M198 104 q20-4 30-24 q5 24-13 32 q-13 4-17-8z" fill="#7cc08a"/>
-<path d="M202 104 q11-7 20-18" stroke="#5aa96a" stroke-width="2" fill="none"/>
-</svg></div>
-        <div class="col-body">
-          <span class="col-tag">胃腸</span>
-          <h3>胸やけ・胃もたれに効く市販薬</h3>
-          <p>食べ過ぎや胃酸の逆流による不快感に。タイプ別の胃腸薬の選び方を紹介します。</p>
-        </div>
-      </a>
-    </div>
-    <div class="sec-cta">
-      <a class="btn-outline" href="/column.html">コラムをもっと見る →</a>
-    </div>
-  </div>
-</section>
+async function syncPull(){
+  const pass=getPass();
+  const r=await fetch('/api/sync',{headers:{'x-sync-pass':pass},cache:'no-store'});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+  const merged=mergeStores(loadStore(), j.store||{});
+  saveStore(merged);
+  return merged;
+}
+async function syncPush(){
+  const pass=getPass();
+  const r=await fetch('/api/sync',{method:'POST',headers:{'Content-Type':'application/json','x-sync-pass':pass},body:JSON.stringify({store:loadStore()})});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+  if(j.store) saveStore(mergeStores(loadStore(), j.store));
+  return j.store;
+}
+async function syncAvailable(){
+  try{ const r=await fetch('/api/sync?status=1',{cache:'no-store'}); const j=await r.json(); return !!j.configured; }catch(e){ return false; }
+}
 
-<!-- ===== Footer ===== -->
-<footer>
-  <div class="foot-inner">
-    <div class="foot-brand">
-      <div class="fb-row">
-        <img loading="lazy" decoding="async" src="assets/logo-icon.png" width="203" height="180" alt="みんなの薬剤師">
-        <span class="fb-name">みんなの薬剤師</span>
-      </div>
-      <p>あなたのスマホが、一番身近な薬剤師に。LINEで市販薬を匿名・無料で相談できるサービスです。</p>
-    </div>
-    <div class="foot-links">
-      <div class="foot-col">
-        <h4>メニュー</h4>
-        <a href="#symptoms">症状から探す</a>
-        <a href="/column.html">お薬コラム</a>
-        <a href="/medicines.html">お薬一覧</a>
-        <a href="/company.html">会社情報</a>
-      </div>
-      <div class="foot-col">
-        <h4>サービス</h4>
-        <a href="https://lin.ee/yQA2ON5" target="_blank" rel="noopener">LINE相談を始める</a>
-        <a href="https://lin.ee/yQA2ON5" target="_blank" rel="noopener">お問い合わせ</a>
-      </div>
-      <div class="foot-col">
-        <h4>規約</h4>
-        <a href="/privacy.html">プライバシーポリシー</a>
-      </div>
-    </div>
-  </div>
-  <div class="foot-bottom">© 2026 みんなの薬剤師. All rights reserved.</div>
-</footer>
+const PROMPT = `あなたは日本の手書き見積書・請求書を読み取る専門家です。画像/PDFの見積書・請求書を読み取り、JSONのみで返してください（前後の説明やコードフェンスは禁止、ミニファイ化したJSON1個だけ）。
 
-<style>
-.line-float-btn{position:fixed;right:1.1rem;bottom:1.1rem;z-index:200;display:inline-flex;align-items:center;gap:.5rem;background:linear-gradient(145deg,#06C755,#05B14C);color:#fff!important;font-weight:700;font-size:.9rem;padding:.8rem 1.25rem;border-radius:100px;text-decoration:none;box-shadow:0 10px 28px -8px rgba(6,199,85,.55);animation:lineFloatPulse 2.6s ease-in-out infinite;transition:transform .2s}
-.line-float-btn:hover{transform:translateY(-3px)}
-.line-float-btn .lfb-ic{display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,.28);font-size:.72rem;font-weight:800;flex-shrink:0}
-@keyframes lineFloatPulse{0%,100%{box-shadow:0 10px 28px -8px rgba(6,199,85,.55)}50%{box-shadow:0 10px 34px -6px rgba(6,199,85,.85)}}
-@media(max-width:480px){.line-float-btn{padding:.72rem 1rem;font-size:.82rem;right:.8rem;bottom:.8rem}}
-</style>
-<a href="https://lin.ee/yQA2ON5" target="_blank" rel="noopener" class="line-float-btn" aria-label="LINEで気軽に相談する">
-  <span class="lfb-ic">L</span><span>気軽に相談</span>
-</a>
+重要: 1つのファイルに複数の見積書・請求書が含まれる場合（左右に2枚並んでいる、複数ページに別々の書類がある等）は、それぞれを別の1件として全て読み取り、estimates配列に入れてください。1件だけの場合も要素1個の配列にしてください。
+
+スキーマ:
+{"estimates":[{"addressee":"宛先（〇〇様の会社名や個人名。無ければ空文字）","date":"発行日（原本の表記そのまま。例:令和8年3月6日）","quote_no":"見積番号・請求番号（無ければ空文字）","vendor":["自社情報を判明分だけ。社名,住所,TEL,代表or担当,登録番号 の順。最大5要素"],"subject":"件名（物件名・工事名・部屋番号など。複数件ある場合は区別できる名前を必ず入れる）","items":[{"name":"品名・摘要","qty":数値またはnull,"unit":"単位(式/枚/台/㎡/個など。無ければ空文字)","price":単価の数値またはnull,"amount":金額の数値またはnull,"name_uncertain":品名の判読に自信が無ければtrue,"number_uncertain":数量・単価・金額のいずれかの判読に自信が無ければtrue}],"stated_total":"原本に書かれた税込合計金額の数値。無ければnull","subtotal_hint":"原本に「小計」や「税抜金額」として書かれた数値があればその数値。無ければnull","tax_hint":"原本に「消費税額等」として書かれた数値があればその数値。無ければnull"}]}
+
+読み取り手順（必ず順番に行う。手順の途中経過は出力しない、最終的なJSONだけを出す）:
+1. まず品名・数量・単位・単価・金額の各列を、見えたままに読み取る。
+2. 手書き数字は特に次の誤読が起きやすいので、字形の特徴（払いの向き、閉じているか開いているか、線の本数）を見比べて再確認する: 0と6、1と7、2と7、3と8、5と6、7と9、100と1000の桁の見落とし。金額欄の末尾が0や00で揃っているかも手がかりにする（多くの日本の見積書では単価・金額はキリの良い数字になりやすい）。
+3. 各行で qty と price が両方読めた場合、qty×price を計算し、読み取った amount と一致するか検算する。一致しない場合、qty・price・amountのどれか1つの数字を誤読している可能性が高いので、画像を見比べて最も自然な組み合わせに修正する。
+4. 全行の金額を合計し、原本に書かれている小計・消費税額等・税込合計（stated_total）と照合する。差額がある場合、どの行の数字が誤読されていそうか再度画像を確認し、可能なら修正する。修正しても原本と一致しない、または原本の数字自体が不鮮明な場合は、無理に一致させず number_uncertain:true のままにする。
+5. 上記を踏まえても読み取りに自信が持てない箇所だけ、name_uncertain / number_uncertain を true にする。自信がある箇所には付けない（付けすぎない）。
+
+その他のルール:
+- 品名は内装・建築工事で頻出の用語と照らし合わせて崩し字を読み解く。頻出語の例: クロス貼替/クロス貼付、フロアタイル貼り、CF（クッションフロア）貼り、ソフト巾木、パテ処理、下地処理、床糊・防湿シート、養生、畳表替え、襖・障子張替、建具調整、水切り、見切り材、枠材・副資材、タタミ撤去処分、残材処分費、廃材処分費、撤去処分費、シーリング、雑工事、諸経費、材工共、一式。
+- 部屋番号や区画（1F、201、202、203号室など）が品名の頭に付くことが多い。数字＋「クロス貼替」のような組み合わせは部屋番号として解釈する。
+- 判読できない崩し字を創作語のまま出力しない。上記の頻出語や文脈から最も自然な用語を選び、その行を name_uncertain:true にする。
+- 数値はカンマや¥を除いた半角数字のみ。
+- 単価×数量で金額が出る行は price と qty を入れる。「一式」など単価が無い行は price:null とし amount に金額を入れる。
+- 「小計」「消費税」「合計」の行は items に含めない。税込合計は stated_total、税抜小計はsubtotal_hint、消費税額はtax_hintに入れる。
+- 物件名や工事名など金額の無い見出し行は subject にまとめ、items には入れない。
+- PDFで複数ページある場合、同一の見積書・請求書の続き（明細の続きページ等）であれば1件として統合する。別々の書類が複数含まれる場合は、それぞれをestimates配列の別要素として全て読み取る。`;
+
+const VERIFY_PROMPT_HEAD = `もう一度、この手書き見積書の画像を注意深く見返してください。前回の読み取り結果を下記JSONで示します。この結果を元に計算した税込合計と、原本に書かれた税込合計が一致していません。
+
+前回の読み取り結果:
+`;
+const VERIFY_PROMPT_TAIL = `
+
+画像内の各行の数字（数量・単価・金額）を1つずつ見比べ、誤読していそうな箇所を特定して修正してください。特に0/6、1/7、2/7、3/8、5/6、7/9の見間違い、桁（0の数）の見落としを重点的に確認してください。修正できた場合はその行の number_uncertain を false に、修正しても確信が持てない場合は true のままにしてください。原本の数字自体が不鮮明で判断できない場合は、無理に合計を合わせようとせず number_uncertain:true にしてください。
+
+前回の読み取り結果と同じ形式（estimatesではなく単一の見積書オブジェクト）のJSONのみを返してください（前後の説明・コードフェンス禁止、ミニファイ化したJSON1個だけ）。`;
+
+const ENDASH='—';
+let estimates=[]; // {id, thumb, data}
+let uid=0;
+
+const $=s=>document.querySelector(s);
+const queue=$('#queue'), results=$('#results'), bar=$('#bar'), cnt=$('#cnt');
+
+/* ---------- upload wiring ---------- */
+const drop=$('#drop');
+$('#pick').onclick=()=>$('#file').click();
+$('#cam').onclick=()=>$('#capture').click();
+$('#file').onchange=e=>handleFiles(e.target.files);
+$('#capture').onchange=e=>handleFiles(e.target.files);
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();if(ev!=='dragleave')return;drop.classList.remove('hot')}));
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('hot');handleFiles(e.dataTransfer.files)});
+
+async function handleFiles(list){
+  const files=[...list].filter(f=>f.type.startsWith('image/')||f.type==='application/pdf');
+  if(!files.length) return;
+  // アップロードのたびに他の端末の学習内容を取り込んでから読み取る
+  if(getPass()){
+    try{ await syncPull(); renderLearnBar(); }
+    catch(e){ console.warn('同期失敗',e); toast('同期できませんでした（この端末の学習データで続行します）'); }
+  }
+  for(const f of files) await processOne(f);
+}
+
+function fileToDataURL(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(f)})}
+
+// 画像は長辺1600pxに縮小してJPEG化（容量・速度対策）。PDFはそのまま。
+async function compress(file){
+  const url=await fileToDataURL(file);
+  if(file.type==='application/pdf') return url;
+  try{
+    const img=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=url});
+    const max=1600, scale=Math.min(1,max/Math.max(img.width,img.height));
+    if(scale>=1) return url;
+    const cv=document.createElement('canvas');
+    cv.width=Math.round(img.width*scale); cv.height=Math.round(img.height*scale);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    return cv.toDataURL('image/jpeg',0.93);
+  }catch(e){return url}
+}
+
+function thumbTag(dataURL,cls){
+  if(dataURL.startsWith('data:application/pdf')){
+    return `<div class="${cls||''}" style="width:42px;height:42px;border-radius:7px;border:1px solid var(--line);background:#fde8e6;color:var(--hanko);display:grid;place-items:center;font-size:10px;font-weight:800;flex:none">PDF</div>`;
+  }
+  return `<img class="${cls||''}" src="${dataURL}">`;
+}
+
+async function processOne(file){
+  const dataURL=await compress(file);
+  const qid=++uid;
+  const q=document.createElement('div');
+  q.className='qitem';q.id='q'+qid;
+  q.innerHTML=`${thumbTag(dataURL)}<span>${escapeHtml(file.name)}</span><span class="st"><span class="spin"></span> 読み取り中…</span>`;
+  queue.appendChild(q);
+  try{
+    const b64=dataURL.split(',')[1];
+    const media=dataURL.slice(5,dataURL.indexOf(';'))||'image/jpeg';
+    const parsed=await extract(b64,media,promptWithGlossary());
+    // 新形式 {estimates:[...]} と旧形式（単一オブジェクト）の両対応
+    let list=Array.isArray(parsed.estimates)?parsed.estimates:[parsed];
+    if(!list.length) throw new Error('見積書を検出できませんでした');
+    list.forEach(normalize);
+    list.forEach(applyLearning);
+
+    // 1件だけの場合のみ、合計不一致時の検算パスを実行
+    if(list.length===1){
+      let data=list[0];
+      const t1=calc(data);
+      if(data.stated_total!=null && data.stated_total!==t1.total){
+        const stq=q.querySelector('.st'); if(stq) stq.innerHTML='<span class="spin"></span> 検算中…';
+        try{
+          const verifyPrompt=VERIFY_PROMPT_HEAD+JSON.stringify(data)+VERIFY_PROMPT_TAIL;
+          const data2raw=await extract(b64,media,verifyPrompt);
+          const data2=Array.isArray(data2raw.estimates)?data2raw.estimates[0]:data2raw;
+          normalize(data2);
+          const t2=calc(data2);
+          const before=Math.abs(t1.total-(data.stated_total??t1.total));
+          const after=Math.abs(t2.total-(data2.stated_total??t1.total));
+          if(after<=before){ data2.reverified=true; list=[data2]; }
+        }catch(e){ /* 再確認に失敗しても最初の結果をそのまま使う */ }
+      }
+    }
+
+    for(const data of list){
+      const id=++uid;
+      estimates.push({id,thumb:dataURL,data});
+      renderCard(id);
+    }
+    q.remove();
+    refreshBar();
+    if(list.length>1) toast(`このファイルから${list.length}件の書類を検出しました`);
+  }catch(err){
+    console.error(err);
+    q.classList.add('err');
+    q.querySelector('.st').textContent='読み取り失敗：'+(err&&err.message?err.message:'もう一度お試しください');
+  }
+}
+
+const IS_PREVIEW = API_ENDPOINT.indexOf('api.anthropic.com') !== -1;
+
+async function extract(b64,media,promptText){
+  const isPdf=media==='application/pdf';
+  const contentBlock=isPdf
+    ? {type:"document",source:{type:"base64",media_type:"application/pdf",data:b64}}
+    : {type:"image",source:{type:"base64",media_type:media,data:b64}};
+  const body={
+    model:"claude-sonnet-4-6",
+    max_tokens:IS_PREVIEW?1000:2000, // このチャット内プレビューは1000固定が必須。本番(Vercel)は上限に余裕を持たせる
+    messages:[{role:"user",content:[
+      contentBlock,
+      {type:"text",text:promptText}
+    ]}]
+  };
+  const r=await fetch(API_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  let j;
+  try{ j=await r.json(); }catch(e){ throw new Error('レスポンス解析失敗（HTTP '+r.status+'）'); }
+  if(!r.ok){
+    const msg=(j&&j.error&&j.error.message)?j.error.message:('HTTP '+r.status);
+    throw new Error('APIエラー: '+msg);
+  }
+  const text=(j.content||[]).map(b=>b.type==="text"?b.text:"").join("").trim();
+  const s=text.indexOf("{"), e=text.lastIndexOf("}");
+  if(s<0||e<0) throw new Error("JSON解析失敗: "+text.slice(0,120));
+  return JSON.parse(text.slice(s,e+1));
+}
+
+/* ---------- model helpers ---------- */
+function num(v){if(v===null||v===undefined||v==='')return null;const n=Number(String(v).replace(/[^0-9.\-]/g,''));return isNaN(n)?null:n}
+function normalize(d){
+  d.addressee=''; d.date=d.date||''; d.quote_no=d.quote_no||'';
+  d.subject=d.subject||''; d.vendor=Array.isArray(d.vendor)?d.vendor:[];
+  d.stated_total=num(d.stated_total);
+  d.markup=num(d.markup)||0;
+  d.subtotal_hint=num(d.subtotal_hint); d.tax_hint=num(d.tax_hint);
+  d.items=(d.items||[]).map(it=>(it.isHeader?{
+    name:it.name||'', unit:'', qty:null, price:null, amount:null,
+    name_uncertain:false, number_uncertain:false, isHeader:true
+  }:{
+    name:it.name||'', unit:it.unit||'',
+    qty:num(it.qty), price:num(it.price), amount:num(it.amount),
+    name_uncertain:!!it.name_uncertain,
+    number_uncertain:!!(it.number_uncertain||it.uncertain),
+    learn_hint:it.learn_hint||''
+  }));
+}
+function lineAmt(it){
+  if(it.isHeader) return 0;
+  if(it.qty!=null&&it.price!=null) return it.qty*it.price;
+  return it.amount!=null?it.amount:0;
+}
+function calc(d){
+  const sub=d.items.reduce((s,it)=>s+lineAmt(it),0);
+  const tax=Math.round(sub*0.1);
+  return {sub,tax,total:sub+tax};
+}
+// 上乗せ後の単価（四捨五入）
+function markedPrice(it,p){ return it.price!=null?Math.round(it.price*(1+p/100)):null; }
+// 上乗せ後の行金額（単価がある行は 数量×上乗せ後単価、一式等は金額を直接上乗せして四捨五入）
+function markedLineAmt(it,p){
+  if(it.isHeader) return 0;
+  if(!p) return lineAmt(it);
+  if(it.qty!=null&&it.price!=null) return it.qty*markedPrice(it,p);
+  return it.amount!=null?Math.round(it.amount*(1+p/100)):0;
+}
+function calcMarked(d){
+  const p=d.markup||0;
+  const sub=d.items.reduce((s,it)=>s+markedLineAmt(it,p),0);
+  const tax=Math.round(sub*0.1);
+  return {sub,tax,total:sub+tax};
+}
+const yen=n=>'¥'+Math.round(n).toLocaleString('ja-JP');
+
+/* ---------- render ---------- */
+function estById(id){return estimates.find(e=>e.id===id)}
+
+function renderCard(id){
+  const est=estById(id), d=est.data;
+  const c=document.createElement('div');
+  c.className='card';c.id='c'+id;
+  results.appendChild(c);
+  paintCard(c,est);
+}
+
+function paintCard(c,est){
+  const d=est.data, t=calc(d);
+  const recon=reconcile(d,t);
+  const ven=d.vendor[0]||'（社名未取得）';
+  const sub=d.vendor.slice(1).filter(Boolean).join(' / ');
+  c.innerHTML=`
+    <div class="chead">
+      ${thumbTag(est.thumb,'cardthumb')}
+      <div class="ven">${escapeHtml(ven)}<span>${escapeHtml(sub)}</span></div>
+      <span class="badge ${recon.cls}">${recon.label}</span>
+      <button class="x-del" title="削除">×</button>
+    </div>
+    <div class="meta">
+      ${metaField(est.id,'addressee','宛先（お客様名・空欄可）',d.addressee)}
+      ${metaField(est.id,'subject','件名',d.subject)}
+      ${metaField(est.id,'date','発行日',d.date)}
+      ${metaField(est.id,'quote_no','請求番号',d.quote_no)}
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>No.</th><th>品名・摘要</th><th>数量</th><th>単位</th><th>単価</th><th>金額</th></tr></thead>
+        <tbody>${(()=>{let no=0;return d.items.map((it,i)=>it.isHeader?headerRow(it,i):itemRow(est.id,it,i,++no)).join('')})()}</tbody>
+      </table>
+    </div>
+    <div class="markup-row">
+      <span class="mk-label">利益上乗せ</span>
+      <button class="mkbtn ${d.markup===10?'on':''}" data-mk="10">10%</button>
+      <button class="mkbtn ${d.markup===20?'on':''}" data-mk="20">20%</button>
+      <button class="mkbtn ${d.markup===30?'on':''}" data-mk="30">30%</button>
+      <span class="mk-custom"><input data-mkinput inputmode="numeric" value="${d.markup||''}" placeholder="0">%</span>
+      <span class="mk-note">Excelには上乗せ後の金額が入り、元の数字は右隣に確認用で表示されます（端数四捨五入）</span>
+    </div>
+    <button class="addrow" data-add>＋ 行を追加</button>
+    <div class="totals" id="tot${est.id}">${totalsHtml(d,t,recon)}</div>
+  `;
+  // wiring
+  c.querySelector('.x-del').onclick=()=>{estimates=estimates.filter(e=>e.id!==est.id);c.remove();refreshBar()};
+  c.querySelector('[data-add]').onclick=()=>{d.items.push({name:'',unit:'',qty:null,price:null,amount:null,name_uncertain:false,number_uncertain:false,isHeader:false});paintCard(c,est)};
+  const refreshTotals=()=>{
+    const t2=calc(d), r2=reconcile(d,t2);
+    $('#tot'+est.id).innerHTML=totalsHtml(d,t2,r2);
+    const b=c.querySelector('.badge');b.className='badge '+r2.cls;b.textContent=r2.label;
+  };
+  c.querySelectorAll('.mkbtn').forEach(btn=>{
+    btn.onclick=()=>{
+      const v=+btn.dataset.mk;
+      d.markup=(d.markup===v)?0:v; // 同じボタン再押下で解除
+      c.querySelectorAll('.mkbtn').forEach(b2=>b2.classList.toggle('on',+b2.dataset.mk===d.markup));
+      c.querySelector('[data-mkinput]').value=d.markup||'';
+      refreshTotals();
+    };
+  });
+  c.querySelector('[data-mkinput]').oninput=e=>{
+    d.markup=Math.max(0,num(e.target.value)||0);
+    c.querySelectorAll('.mkbtn').forEach(b2=>b2.classList.toggle('on',+b2.dataset.mk===d.markup));
+    refreshTotals();
+  };
+  c.querySelectorAll('input[data-meta]').forEach(inp=>{
+    inp.oninput=()=>{d[inp.dataset.meta]=inp.value}
+  });
+  c.querySelectorAll('input[data-f]').forEach(inp=>{
+    inp.oninput=()=>{
+      const i=+inp.dataset.i, f=inp.dataset.f;
+      const it=d.items[i];
+      if(f==='name'||f==='unit') it[f]=inp.value;
+      else it[f]=num(inp.value);
+      updateRowAmt(c,i,it);
+      refreshTotals();
+    }
+  });
+}
+
+function metaField(id,key,label,val){
+  return `<div class="fld"><label>${label}</label><input data-meta="${key}" value="${escapeAttr(val||'')}" placeholder="—"></div>`;
+}
+function headerRow(it,i){
+  return `<tr class="hdrrow"><td class="no"></td><td colspan="5"><input data-f="name" data-i="${i}" value="${escapeAttr(it.name)}"></td></tr>`;
+}
+function itemRow(id,it,i,no){
+  const unc=it.name_uncertain||it.number_uncertain;
+  return `<tr class="${unc?'unc':''}">
+    <td class="no">${no}</td>
+    <td><input data-f="name" data-i="${i}" value="${escapeAttr(it.name)}">${it.name_uncertain?'<span class="flag">品名要確認</span>':''}</td>
+    <td class="c ${it.number_uncertain?'numflag':''}" style="width:74px"><input data-f="qty" data-i="${i}" value="${it.qty??''}"></td>
+    <td class="c" style="width:60px"><input data-f="unit" data-i="${i}" value="${escapeAttr(it.unit)}"></td>
+    <td class="r ${it.number_uncertain?'numflag':''}" style="width:96px"><input data-f="price" data-i="${i}" value="${it.price??''}"></td>
+    <td class="amt ${it.number_uncertain?'numflag':''}" data-amt="${i}">${num2(lineAmt(it))}${it.number_uncertain?'<span class="flag">金額要確認</span>':''}${it.learn_hint?'<span class="flag hintflag">'+escapeHtml(it.learn_hint)+'</span>':''}</td>
+  </tr>`;
+}
+function num2(n){return Number(n||0).toLocaleString('ja-JP')}
+function updateRowAmt(c,i,it){const el=c.querySelector(`[data-amt="${i}"]`);if(el)el.textContent=num2(lineAmt(it))}
+
+function totalsHtml(d,t,recon){
+  const p=d.markup||0;
+  const m=p?calcMarked(d):null;
+  return `
+    <div class="row"><span>小計（税抜）</span><span class="v">${num2(t.sub)}</span></div>
+    <div class="row"><span>消費税（10%）</span><span class="v">${num2(t.tax)}</span></div>
+    <div class="row grand"><span>合計（税込）</span><span class="v">${yen(t.total)}</span></div>
+    ${recon.note?`<div class="recon ${recon.cls}">${recon.note}</div>`:''}
+    ${m?`<div class="row mk"><span>上乗せ後 小計（+${p}%）</span><span class="v">${num2(m.sub)}</span></div>
+    <div class="row mk"><span>上乗せ後 消費税</span><span class="v">${num2(m.tax)}</span></div>
+    <div class="row grand mk"><span>上乗せ後 合計（税込）</span><span class="v">${yen(m.total)}</span></div>
+    <div class="recon mkinfo">Excelには上乗せ後の金額で出力されます（元の数字は右隣の確認用列に表示）</div>`:''}`;
+}
+function reconcile(d,t){
+  if(d.stated_total==null) return {cls:'warn',label:'合計未取得',note:'原本の税込合計が読み取れませんでした。金額をご確認ください。'};
+  if(d.stated_total===t.total){
+    return d.reverified
+      ? {cls:'ok',label:'合計一致（再確認済）',note:`誤読していた数字を自動で見直し、原本記載の税込合計 ${yen(d.stated_total)} と一致しました。念のため黄色マークの行だけご確認ください。`}
+      : {cls:'ok',label:'合計一致',note:`原本記載の税込合計 ${yen(d.stated_total)} と一致しました。`};
+  }
+  const diff=t.total-d.stated_total;
+  const base=`原本の合計 ${yen(d.stated_total)} と ${(diff>0?'+':'')}${num2(diff)}円 ずれています。数量・単価・金額をご確認ください。`;
+  return {cls:'warn',label:'要確認',note:d.reverified?base+'（自動での見直し後もこのズレが残っています）':base};
+}
+
+/* ---------- export ---------- */
+function refreshBar(){
+  if(estimates.length){bar.classList.add('show');cnt.textContent=`${estimates.length}件を書き出します`}
+  else bar.classList.remove('show');
+  renderCombineBanner();
+}
+$('#export').onclick=exportExcel;
+
+/* ---------- combine multiple estimates into one ---------- */
+function renderCombineBanner(){
+  const el=$('#combineBanner');
+  if(estimates.length>=2){
+    el.innerHTML=`<div class="combine-bar">
+      <span>${estimates.length}件の書類があります。このまま書き出すと<b>別々のシート</b>になります。1つにまとめることもできます。</span>
+      <button class="btn ghost" id="combineBtn">1つにまとめる</button>
+    </div>`;
+    el.querySelector('#combineBtn').onclick=combineAll;
+  } else {
+    el.innerHTML='';
+  }
+}
+
+function mergeEstimates(ests){
+  const first=ests[0].data;
+  const merged={
+    addressee:first.addressee||'', date:first.date||'', quote_no:'',
+    vendor:(first.vendor||[]).slice(), subject:'', items:[],
+    stated_total:null, subtotal_hint:null, tax_hint:null, markup:0,
+    reverified:ests.some(e=>e.data.reverified)
+  };
+  let sum=0, missing=false;
+  ests.forEach(e=>{
+    const d=e.data;
+    const label=(d.vendor&&d.vendor[0])?d.vendor[0]:'見積書';
+    const headerName='【'+label+'】'+(d.subject?(' '+d.subject):'');
+    merged.items.push({name:headerName,unit:'',qty:null,price:null,amount:null,
+      name_uncertain:false,number_uncertain:false,isHeader:true});
+    d.items.forEach(it=>merged.items.push(Object.assign({},it)));
+    if(d.stated_total==null) missing=true; else sum+=d.stated_total;
+  });
+  merged.stated_total=missing?null:sum;
+  return merged;
+}
+
+function combineAll(){
+  if(estimates.length<2) return;
+  const mergedData=mergeEstimates(estimates);
+  normalize(mergedData);
+  const thumb=estimates[0].thumb;
+  const id=++uid;
+  estimates=[{id,thumb,data:mergedData}];
+  results.innerHTML='';
+  renderCard(id);
+  refreshBar();
+  toast('1つの見積書にまとめました');
+}
+
+const NAVY='FF2F5597',GREY='FFF2F2F2',WHITE='FFFFFFFF',LINE='FF999999',MED='FF333333';
+const THIN={style:'thin',color:{argb:LINE}};
+const box={top:THIN,left:THIN,right:THIN,bottom:THIN};
+
+async function exportExcel(){
+  if(!estimates.length)return;
+  const wb=new ExcelJS.Workbook();
+  const used={};
+  estimates.forEach((est,idx)=>{
+    let nm=(est.data.vendor[0]||('見積'+(idx+1))).replace(/[\\\/\?\*\[\]:]/g,'').slice(0,28)||('見積'+(idx+1));
+    if(used[nm])nm=nm.slice(0,24)+'_'+(++used[nm]); else used[nm]=1;
+    buildSheet(wb.addWorksheet(nm,{views:[{showGridLines:false}]}),est.data,idx+1);
+  });
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`請求書_${estimates.length}件.xlsx`;a.click();
+  URL.revokeObjectURL(url);
+  const n=learnFromEstimates();
+  renderLearnBar();
+  toast(n?`Excelを書き出し、${n}項目を学習しました`:'Excelを書き出しました');
+  if(n&&getPass()){ // 共有ONなら学習内容を他の端末へ反映
+    syncPush().then(()=>renderLearnBar()).catch(e=>console.warn('同期失敗',e));
+  }
+}
+
+function buildSheet(ws,d,no){
+  const p=d.markup||0;
+  // 上乗せありの場合はH/I列に元の数値（確認用）を出す
+  const widths=p?[4,30,8,6,13,14,3,13,14]:[4,30,8,6,13,14,3];
+  widths.forEach((w,i)=>ws.getColumn(i+1).width=w);
+  const set=(ref,val,o={})=>{
+    const c=ws.getCell(ref);
+    if(val!==undefined&&val!==null)c.value=val;
+    c.font={name:'Yu Gothic',size:o.size||11,bold:!!o.bold,color:{argb:o.color||'FF000000'},italic:!!o.italic};
+    c.alignment={horizontal:o.align||'left',vertical:o.valign||'middle',wrapText:!!o.wrap};
+    if(o.fill)c.fill={type:'pattern',pattern:'solid',fgColor:{argb:o.fill}};
+    if(o.border)c.border=o.border;
+    if(o.num)c.numFmt=o.num;
+    return c;
+  };
+  const GRAYTXT='FF8A93A6', GRAYFILL='FFF6F7FA';
+  const t=p?calcMarked(d):calc(d);
+  const orig=calc(d);
+
+  ws.mergeCells('A1:G1');
+  set('A1','請 求 書',{size:24,bold:true,align:'center'});ws.getRow(1).height=40;
+
+  set('E3','請求番号',{size:9,align:'right'});
+  set('F3',d.quote_no||'',{size:9,border:{bottom:THIN}});
+  set('E4','発行日',{size:9,align:'right'});
+  set('F4',d.date||'',{size:9,border:{bottom:THIN}});
+
+  ws.mergeCells('A3:C3');
+  set('A3','',{size:14,bold:true,border:{bottom:MED}});
+  set('D3','御中',{size:12,bold:true});ws.getRow(3).height=24;
+  set('A5','下記の通りご請求申し上げます。',{size:10});
+
+  // vendor right（発行元＝初見工務店に固定）
+  const vlines=['有限会社 初見工務店','東京都北区滝野川６丁目８６－１','TEL：03-5907-6300'];
+  const vrows=['E6','E7','E8','E9','E10'];
+  vlines.slice(0,5).forEach((ln,i)=>{
+    ws.mergeCells(`${vrows[i]}:F${6+i}`);
+    set(vrows[i],ln,{size:i===0?11:9,bold:i===0});
+  });
+  ws.mergeCells('G6:G8');
+  set('G6','印',{size:8,align:'center',color:'FF999999',border:box});
+
+  // subject（件名のみ。支払期限・有効期限は請求書では不要のため省略）
+  const info=(r,label,val,wrap,h)=>{
+    ws.mergeCells(`A${r}:B${r}`);
+    set(`A${r}`,label,{size:10,bold:true,fill:GREY,align:'center',border:box});
+    ws.mergeCells(`C${r}:D${r}`);
+    set(`C${r}`,val||'',{size:10,border:box,wrap:wrap});
+    ws.getRow(r).height=h||22;
+  };
+  info(6,'件　名',d.subject,true,30);
+
+  ws.getRow(11).height=30;
+  ws.mergeCells('A11:B11');
+  set('A11','ご請求金額',{size:13,bold:true,fill:NAVY,color:WHITE,align:'center',border:box});
+
+  const hdr=13;
+  [['A','No.'],['B','品名・摘要'],['C','数量'],['D','単位'],['E','単価'],['F','金額']]
+    .forEach(([col,name])=>set(`${col}${hdr}`,name,{size:10,bold:true,fill:NAVY,color:WHITE,align:'center',border:box}));
+  if(p){
+    ws.mergeCells(`H${hdr-1}:I${hdr-1}`);
+    set(`H${hdr-1}`,`▼ 上乗せ前の原本数値（確認用）`,{size:8.5,color:GRAYTXT,align:'center'});
+    set(`H${hdr}`,'元単価',{size:10,bold:true,fill:GRAYFILL,color:GRAYTXT,align:'center',border:box});
+    set(`I${hdr}`,'元金額',{size:10,bold:true,fill:GRAYFILL,color:GRAYTXT,align:'center',border:box});
+  }
+  ws.getRow(hdr).height=22;
+
+  const first=hdr+1;
+  let itemNo=0;
+  d.items.forEach((it,i)=>{
+    const r=first+i;
+    if(it.isHeader){
+      ws.mergeCells(`A${r}:F${r}`);
+      set(`A${r}`,it.name||'',{size:10,bold:true,fill:'FFEAF0FB',align:'left',color:'FF21426F'});
+      ws.getRow(r).height=20;
+      return;
+    }
+    itemNo++;
+    const mp=p?markedPrice(it,p):it.price;
+    set(`A${r}`,itemNo,{size:10,align:'center',border:box});
+    set(`B${r}`,it.name||'',{size:10,border:box,wrap:true});
+    set(`C${r}`,it.qty??'',{size:10,align:'center',border:box,num:'#,##0.##'});
+    set(`D${r}`,it.unit||'',{size:10,align:'center',border:box});
+    set(`E${r}`,mp??'',{size:10,align:'right',border:box,num:'#,##0'});
+    if(it.qty!=null&&mp!=null)
+      set(`F${r}`,{formula:`C${r}*E${r}`,result:it.qty*mp},{size:10,align:'right',border:box,num:'#,##0'});
+    else
+      set(`F${r}`,p?markedLineAmt(it,p):(it.amount??0),{size:10,align:'right',border:box,num:'#,##0'});
+    if(p){
+      set(`H${r}`,it.price??'',{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+      set(`I${r}`,lineAmt(it),{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+    }
+    ws.getRow(r).height=20;
+  });
+
+  const last=first+d.items.length-1;
+  const sub=last+1,tax=last+2,tot=last+3;
+  set(`E${sub}`,'小　計',{size:10,bold:true,fill:GREY,align:'center',border:box});
+  set(`F${sub}`,{formula:`SUM(F${first}:F${last})`,result:t.sub},{size:10,align:'right',border:box,num:'#,##0'});
+  set(`E${tax}`,'消費税（10%）',{size:10,bold:true,fill:GREY,align:'center',border:box});
+  set(`F${tax}`,{formula:`ROUND(F${sub}*0.1,0)`,result:t.tax},{size:10,align:'right',border:box,num:'#,##0'});
+  set(`E${tot}`,'合　計',{size:11,bold:true,fill:NAVY,color:WHITE,align:'center',border:box});
+  set(`F${tot}`,{formula:`F${sub}+F${tax}`,result:t.total},{size:11,bold:true,align:'right',border:box,num:'"¥"#,##0'});
+  if(p){
+    set(`H${sub}`,{formula:`SUM(I${first}:I${last})`,result:orig.sub},{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+    ws.mergeCells(`H${sub}:I${sub}`);
+    set(`H${tax}`,orig.tax,{size:10,align:'right',border:box,num:'#,##0',color:GRAYTXT,fill:GRAYFILL});
+    ws.mergeCells(`H${tax}:I${tax}`);
+    set(`H${tot}`,orig.total,{size:10,bold:true,align:'right',border:box,num:'"¥"#,##0',color:GRAYTXT,fill:GRAYFILL});
+    ws.mergeCells(`H${tot}:I${tot}`);
+  }
+
+  ws.mergeCells('C11:E11');
+  set('C11',{formula:`F${tot}`,result:t.total},{size:16,bold:true,align:'center',border:box,num:'"¥"#,##0'});
+  set('F11','（税込）',{size:10,align:'center',border:box});
+
+  const ns=tot+2,ne=ns+3;
+  ws.mergeCells(`A${ns}:A${ne}`);
+  set(`A${ns}`,'備考',{size:10,bold:true,fill:GREY,align:'center',border:box});
+  ws.mergeCells(`B${ns}:F${ne}`);
+  const matched=d.stated_total!=null&&d.stated_total===orig.total;
+  let note=matched
+    ? `手書き原本より作成。原本の税込合計 ${yen(orig.total)} と一致。`
+    : `手書き原本より作成。原本との金額照合をご確認ください。`;
+  if(p) note+=`\n単価に${p}%の利益を上乗せしています（端数四捨五入）。右側のグレー列は上乗せ前の原本数値（確認用）です。上乗せ後合計 ${yen(t.total)}／上乗せ前合計 ${yen(orig.total)}。`;
+  set(`B${ns}`,note,{size:9,border:box,wrap:true,valign:'top'});
+  for(let r=ns;r<=ne;r++)ws.getRow(r).height=18;
+}
+
+/* ---------- 学習データのUI ---------- */
+function renderLearnBar(){
+  const el=$('#learnbar');
+  if(!el) return;
+  const s=learnStats();
+  const syncLine=`<br><span style="color:var(--ok)">✓ 端末間で自動共有中</span>`;
+  if(!s.vendors){
+    el.innerHTML='Excelを書き出すと、その内容を業者ごとに学習して次回の読み取り精度が上がります。'+syncLine;
+  }else{
+    el.innerHTML=`学習済み: <b>${s.vendors}業者 / ${s.items}項目</b>（次回の読み取りヒントに使用）
+    <button id="lbExport">書き出し</button>・<button id="lbImport">取り込み</button>・<button id="lbClear">消去</button>
+    <input type="file" id="lbFile" accept="application/json,.json" hidden>`+syncLine;
+  }
+  if(!s.vendors) return;
+  $('#lbExport').onclick=()=>{
+    const blob=new Blob([JSON.stringify(loadStore(),null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download='学習データ.json';a.click();
+    URL.revokeObjectURL(url);
+  };
+  $('#lbImport').onclick=()=>$('#lbFile').click();
+  $('#lbFile').onchange=async ev=>{
+    const f=ev.target.files[0]; if(!f) return;
+    try{
+      const incoming=JSON.parse(await f.text());
+      const store=loadStore();
+      Object.entries(incoming).forEach(([v,prof])=>{
+        const cur=store[v]||{items:{},updated:0};
+        Object.entries(prof.items||{}).forEach(([nm,rec])=>{ cur.items[nm]=rec; });
+        cur.updated=Math.max(cur.updated||0, prof.updated||0);
+        store[v]=cur;
+      });
+      saveStore(store); renderLearnBar(); toast('学習データを取り込みました');
+    }catch(e){ toast('取り込みに失敗しました'); }
+  };
+  $('#lbClear').onclick=()=>{
+    if(!confirm('学習データを全て消去します。よろしいですか？')) return;
+    saveStore({}); renderLearnBar(); toast('学習データを消去しました');
+  };
+}
+renderLearnBar();
+
+// 起動時に他の端末の学習内容を取り込む
+(async()=>{
+  try{ await syncPull(); renderLearnBar(); }
+  catch(e){ console.warn('同期できませんでした',e); }
+})();
+
+/* ---------- util ---------- */
+function escapeHtml(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function escapeAttr(s){return escapeHtml(s)}
+let toastT;
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2200)}
+</script>
 </body>
 </html>
